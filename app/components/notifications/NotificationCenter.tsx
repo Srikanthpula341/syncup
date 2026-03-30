@@ -12,9 +12,6 @@ import {
   onSnapshot, 
   orderBy, 
   limit, 
-  doc,
-  updateDoc,
-  writeBatch,
   Timestamp
 } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
@@ -78,11 +75,17 @@ export default function NotificationCenter() {
   const handleNotificationClick = async (notif: Notification) => {
     if (!user) return;
     
-    // 1. Mark as Read
+    // 1. Mark as Read via API
     if (!notif.isRead) {
-      await updateDoc(doc(db, 'users', user.uid, 'notifications', notif.id), {
-        isRead: true
-      });
+      fetch('/api/notifications/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          notificationId: notif.id,
+          action: 'MARK_READ'
+        })
+      }).catch(console.error);
     }
 
     // 2. Redirect & Select Channel
@@ -96,24 +99,42 @@ export default function NotificationCenter() {
 
   const markAllAsRead = async () => {
     if (!user || unreadCount === 0) return;
-    const batch = writeBatch(db);
-    notifications.forEach(n => {
-      if (!n.isRead) {
-        batch.update(doc(db, 'users', user.uid, 'notifications', n.id), { isRead: true });
-      }
-    });
-    await batch.commit();
-    toast.success('All marked as read');
+    try {
+      await fetch('/api/notifications/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          action: 'READ_ALL'
+        })
+      });
+      toast.success('All marked as read');
+    } catch (err) {
+      console.error("Mark Read Error", err);
+    }
   };
 
   const clearAll = async () => {
     if (!user || notifications.length === 0) return;
-    const batch = writeBatch(db);
+    
+    // We should probably add a DELETE_ALL action to the API, 
+    // but for now we'll handle single deletes quickly in sequence or update API.
+    // Let's implement individual deletes via API for each.
+    
     notifications.forEach(n => {
-      batch.delete(doc(db, 'users', user.uid, 'notifications', n.id));
+      fetch('/api/notifications/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          notificationId: n.id,
+          action: 'DELETE'
+        })
+      }).catch(console.error);
     });
-    await batch.commit();
+    
     setIsOpen(false);
+    toast.success('Alerts cleared');
   };
 
   return (

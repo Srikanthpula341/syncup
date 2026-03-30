@@ -3,9 +3,9 @@ import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
-    const { content, userId, userName, userAvatar, workspaceId, channelId } = await req.json();
+    const { content, attachments = [], userId, userName, userAvatar, workspaceId, channelId } = await req.json();
 
-    if (!content || !userId || !workspaceId || !channelId) {
+    if ((!content && attachments.length === 0) || !userId || !workspaceId || !channelId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -16,11 +16,18 @@ export async function POST(req: Request) {
       ? `dms/${channelId}/messages`
       : `workspaces/${workspaceId}/channels/${channelId}/messages`;
 
+    // Preview generation
+    let preview = content.trim().substring(0, 100);
+    if (!preview && attachments.length > 0) {
+      preview = `📎 Sent ${attachments.length} file(s)`;
+    }
+
     const messageData = {
       userId,
       userName,
       userAvatar: userAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
       content: content.trim(),
+      attachments,
       timestamp: adminFirestore.FieldValue.serverTimestamp(),
       status: 'sent',
     };
@@ -32,7 +39,7 @@ export async function POST(req: Request) {
     const parentPath = isDM ? `dms/${channelId}` : `workspaces/${workspaceId}/channels/${channelId}`;
     await adminDb.doc(parentPath).set({
       lastMessageAt: adminFirestore.FieldValue.serverTimestamp(),
-      lastMessagePreview: content.trim().substring(0, 50),
+      lastMessagePreview: preview,
     }, { merge: true });
 
     // Activity Log
@@ -43,7 +50,7 @@ export async function POST(req: Request) {
       entityId: channelId,
       metadata: {
         channelName: isDM ? 'Direct Message' : 'Channel', 
-        preview: content.trim().substring(0, 50),
+        preview: preview,
       },
       createdAt: adminFirestore.FieldValue.serverTimestamp(),
     });
@@ -79,7 +86,7 @@ export async function POST(req: Request) {
           notificationsBatch.set(notifRef, {
             type: 'message',
             title: `New DM from ${userName}`,
-            body: content.trim().substring(0, 100),
+            body: preview,
             senderName: userName,
             senderAvatar: userAvatar,
             channelId,
@@ -105,7 +112,7 @@ export async function POST(req: Request) {
           notificationsBatch.set(notifRef, {
             type: isMentioned ? 'mention' : 'message',
             title: isMentioned ? `You were mentioned in #${channelId}` : `New message in #${channelId}`,
-            body: content.trim().substring(0, 100),
+            body: preview,
             senderName: userName,
             senderAvatar: userAvatar,
             channelId,

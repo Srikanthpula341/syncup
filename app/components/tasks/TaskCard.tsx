@@ -69,6 +69,7 @@ export default function TaskCard({ task, index }: TaskCardProps) {
                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${task.assigneeId || task.creatorId}`} 
                 alt="avatar"
                 fill
+                sizes="24px"
                 className="object-cover rounded-full" 
               />
               <PresenceBadge 

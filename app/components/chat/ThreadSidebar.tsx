@@ -127,7 +127,13 @@ export default function ThreadSidebar() {
         <div className="pb-6 border-b border-zinc-100 mb-6">
           <div className="flex gap-3">
              <div className="w-9 h-9 rounded-lg shrink-0 relative">
-                 <Image src={parentMessage.userAvatar} alt="avatar" fill className="object-cover rounded-lg" />
+                 <Image 
+                   src={parentMessage.userAvatar} 
+                   alt="avatar" 
+                   fill 
+                   sizes="36px"
+                   className="object-cover rounded-lg" 
+                 />
                  <PresenceBadge 
                    uid={parentMessage.userId} 
                    className="absolute -bottom-1 -right-1 scale-75"
@@ -148,7 +154,13 @@ export default function ThreadSidebar() {
           {replies.map((reply) => (
             <div key={reply.id} className="flex gap-3 group">
                <div className="w-8 h-8 rounded-lg shrink-0 relative">
-                  <Image src={reply.userAvatar} alt="avatar" fill className="object-cover rounded-lg" />
+                  <Image 
+                    src={reply.userAvatar} 
+                    alt="avatar" 
+                    fill 
+                    sizes="32px"
+                    className="object-cover rounded-lg" 
+                  />
                   <PresenceBadge 
                     uid={reply.userId} 
                     className="absolute -bottom-1 -right-1 scale-75"

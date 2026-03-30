@@ -62,7 +62,7 @@ export default function MessageList() {
                         </button>
                       </div>
 
-                      <div className="bg-orange-500 text-white px-4 py-2 rounded-xl max-w-xs break-words inline-flex items-end gap-2 shadow-sm">
+                      <div className="bg-orange-500 text-white px-4 py-2 rounded-xl max-w-xs wrap-break-word inline-flex items-end gap-2 shadow-sm">
                         <span className="text-[15px]">{message.content}</span>
                         <div className="flex items-center gap-1 shrink-0 mb-0.5 mt-1 -mr-1">
                           <span className="text-[10px] text-white/70 font-bold">
@@ -96,6 +96,7 @@ export default function MessageList() {
                         src={message.userAvatar} 
                         alt={message.userName} 
                         fill
+                        sizes="32px"
                         className="object-cover rounded-lg" 
                       />
                       <PresenceBadge 

@@ -28,6 +28,13 @@ export async function POST(req: Request) {
     // Save message to Firestore
     const messageRef = await adminDb.collection(messagePath).add(messageData);
 
+    // Update the parent (Channel or DM) with the last message time for sorting
+    const parentPath = isDM ? `dms/${channelId}` : `workspaces/${workspaceId}/channels/${channelId}`;
+    await adminDb.doc(parentPath).set({
+      lastMessageAt: adminFirestore.FieldValue.serverTimestamp(),
+      lastMessagePreview: content.trim().substring(0, 50),
+    }, { merge: true });
+
     // Activity Log
     await adminDb.collection('activities').add({
       workspaceId,
@@ -55,6 +62,65 @@ export async function POST(req: Request) {
     await adminDb.doc(`users/${userId}`).update({
       lastSeen: adminFirestore.FieldValue.serverTimestamp()
     }).catch(() => {});
+
+    // --- Phase 9: Real-Time Notifications ---
+    try {
+      const usersSnapshot = await adminDb.collection('users').get();
+      const allUsers = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      const notificationsBatch = adminDb.batch();
+      const now = adminFirestore.FieldValue.serverTimestamp();
+
+      if (isDM) {
+        // Notify the recipient in a DM
+        const recipientUid = channelId.replace('dm-', '').split('_').find((id: string) => id !== userId);
+        if (recipientUid) {
+          const notifRef = adminDb.collection(`users/${recipientUid}/notifications`).doc();
+          notificationsBatch.set(notifRef, {
+            type: 'message',
+            title: `New DM from ${userName}`,
+            body: content.trim().substring(0, 100),
+            senderName: userName,
+            senderAvatar: userAvatar,
+            channelId,
+            workspaceId,
+            isRead: false,
+            createdAt: now
+          });
+        }
+      } else {
+        // Notify for Channel Messages (+ Mentions)
+        const mentions = content.match(/@(\w+)/g) || [];
+        const mentionedNames = mentions.map((m: string) => m.substring(1).toLowerCase());
+
+        allUsers.forEach((u: { id: string, displayName?: string, email?: string }) => {
+          if (u.id === userId) return; // Don't notify sender
+
+          const isMentioned = mentionedNames.some((name: string) => 
+            u.displayName?.toLowerCase().includes(name) || 
+            u.email?.toLowerCase().includes(name)
+          );
+
+          const notifRef = adminDb.collection(`users/${u.id}/notifications`).doc();
+          notificationsBatch.set(notifRef, {
+            type: isMentioned ? 'mention' : 'message',
+            title: isMentioned ? `You were mentioned in #${channelId}` : `New message in #${channelId}`,
+            body: content.trim().substring(0, 100),
+            senderName: userName,
+            senderAvatar: userAvatar,
+            channelId,
+            workspaceId,
+            isRead: false,
+            createdAt: now
+          });
+        });
+      }
+
+      await notificationsBatch.commit();
+    } catch (notifError) {
+      console.error('Notification trigger error:', notifError);
+      // Don't fail the message send if notifications fail
+    }
 
     return NextResponse.json({ id: messageRef.id, success: true });
   } catch (error: unknown) {

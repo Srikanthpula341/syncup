@@ -8,34 +8,41 @@ import {
   Activity,
   Building2,
 } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 
 const menu = [
-  { name: "Chat", icon: MessageCircle },
-  { name: "Tasks", icon: CheckSquare },
-  { name: "Activity", icon: Activity },
-  { name: "People", icon: Users },
-  { name: "Workspace", icon: Building2 },
+  { name: "Chat", icon: MessageCircle, path: "/chat" },
+  { name: "Tasks", icon: CheckSquare, path: "/tasks" },
+  { name: "Activity", icon: Activity, path: "/activity" },
+
+  { name: "Workspace", icon: Building2, path: "/workspaces" },
+    { name: "People", icon: Users, path: "/profile" },
 ];
 
 export default function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+
   return (
     <div className="w-[70px] h-screen bg-white flex flex-col items-center py-4 border-r border-zinc-200">
 
-      {/* Top Logo */}
-      <div className="mb-6 text-orange-500 font-bold text-lg">S</div>
+      <div className="mb-6 text-orange-500 font-bold text-lg cursor-pointer"
+           onClick={() => router.push("/chat")}>
+        S
+      </div>
 
-      {/* Menu */}
       <div className="flex flex-col items-center gap-6">
-        {menu.map((item, i) => {
+        {menu.map((item) => {
           const Icon = item.icon;
-          const isActive = i === 0;
+
+          const isActive = pathname === item.path;
 
           return (
             <div
               key={item.name}
+              onClick={() => router.push(item.path)}
               className="flex flex-col items-center gap-1 cursor-pointer group"
             >
-             
               <div
                 className={`p-2 rounded-xl transition-all duration-200
                   ${
@@ -47,7 +54,6 @@ export default function Sidebar() {
                 <Icon size={18} />
               </div>
 
-              {/* Label */}
               <span
                 className={`text-[11px] ${
                   isActive
@@ -62,7 +68,6 @@ export default function Sidebar() {
         })}
       </div>
 
-      {/* Bottom Section */}
       <div className="mt-auto flex flex-col items-center gap-6">
         <MoreHorizontal className="text-zinc-400" size={20} />
       </div>

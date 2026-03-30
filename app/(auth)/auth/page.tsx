@@ -17,7 +17,7 @@ const AuthPage = () => {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.push('/dashboard');
+      router.push('/chat');
     }
   }, [status, router]);
 
@@ -25,7 +25,7 @@ const AuthPage = () => {
     dispatch(setAuthLoading());
     try {
       await signInWithPopup(auth, googleProvider);
-      router.push('/dashboard');
+      router.push('/chat');
     } catch (err: unknown) {
       console.error(err);
       const errorMessage =

@@ -1,10 +1,10 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { StoreProvider } from "./store/provider";
 import AuthListener from "./components/auth/AuthListener";
 import SeedManager from "./components/auth/SeedManager";
-
+import "./globals.css";
+import { StoreProvider } from "./store/provider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,6 +35,7 @@ export default function RootLayout({
           <AuthListener />
           <SeedManager />
           {children}
+          <Analytics/>
         </StoreProvider>
       </body>
     </html>

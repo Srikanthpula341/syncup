@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminDb } from '@/app/lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 
 export async function PATCH(req: Request) {
   try {
@@ -20,7 +19,7 @@ export async function PATCH(req: Request) {
     // Update task in Firestore
     await adminDb.doc(`tasks/${taskId}`).update({
       columnId: newColumnId,
-      updatedAt: FieldValue.serverTimestamp(),
+      updatedAt: adminFirestore.FieldValue.serverTimestamp(),
     });
 
     // Log activity for the timeline
@@ -33,7 +32,7 @@ export async function PATCH(req: Request) {
         from: oldColumnName || 'Unknown',
         to: newColumnName || 'Unknown',
       },
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: adminFirestore.FieldValue.serverTimestamp(),
     });
 
     return NextResponse.json({ success: true });

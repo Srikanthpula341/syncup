@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import TypingIndicator from "./TypingIndicator";
 import { openThread } from "@/app/store/slices/uiSlice";
 import Image from "next/image";
+import PresenceBadge from "../ui/PresenceBadge";
 
 export default function MessageList() {
   const dispatch = useAppDispatch();
@@ -90,12 +91,16 @@ export default function MessageList() {
               return (
                 <div key={message.id} className="flex justify-start items-start group gap-3">
                    {/* Avatar */}
-                   <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-1 relative">
+                   <div className="w-8 h-8 rounded-lg shrink-0 mt-1 relative">
                       <Image 
                         src={message.userAvatar} 
                         alt={message.userName} 
                         fill
-                        className="object-cover" 
+                        className="object-cover rounded-lg" 
+                      />
+                      <PresenceBadge 
+                        uid={message.userId} 
+                        className="absolute -bottom-1 -right-1 scale-75"
                       />
                    </div>
 

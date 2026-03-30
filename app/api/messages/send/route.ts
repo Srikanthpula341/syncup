@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminDb } from '@/app/lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
@@ -22,7 +21,7 @@ export async function POST(req: Request) {
       userName,
       userAvatar: userAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
       content: content.trim(),
-      timestamp: FieldValue.serverTimestamp(),
+      timestamp: adminFirestore.FieldValue.serverTimestamp(),
       status: 'sent',
     };
 
@@ -36,10 +35,10 @@ export async function POST(req: Request) {
       userId,
       entityId: channelId,
       metadata: {
-        channelName: isDM ? 'Direct Message' : 'Channel', // We could fetch actual name if needed
+        channelName: isDM ? 'Direct Message' : 'Channel', 
         preview: content.trim().substring(0, 50),
       },
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: adminFirestore.FieldValue.serverTimestamp(),
     });
 
     // Handle Unread Counts for DMs
@@ -47,14 +46,14 @@ export async function POST(req: Request) {
       const recipientUid = channelId.replace('dm-', '').split('_').find((id: string) => id !== userId);
       if (recipientUid) {
         await adminDb.doc(`unread_counts/${recipientUid}`).set({
-          [channelId]: FieldValue.increment(1)
+          [channelId]: adminFirestore.FieldValue.increment(1)
         }, { merge: true });
       }
     }
 
     // Ping the user's lastSeen
     await adminDb.doc(`users/${userId}`).update({
-      lastSeen: FieldValue.serverTimestamp()
+      lastSeen: adminFirestore.FieldValue.serverTimestamp()
     }).catch(() => {});
 
     return NextResponse.json({ id: messageRef.id, success: true });

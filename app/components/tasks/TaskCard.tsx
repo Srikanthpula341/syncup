@@ -6,6 +6,7 @@ import { Calendar, MessageSquare, AlertCircle } from 'lucide-react';
 import { Task } from '@/app/hooks/useTasks';
 import { cn } from '@/app/lib/utils';
 import Image from 'next/image';
+import PresenceBadge from '../ui/PresenceBadge';
 
 interface TaskCardProps {
   task: Task;
@@ -63,12 +64,16 @@ export default function TaskCard({ task, index }: TaskCardProps) {
             </div>
 
             {/* Assignee Avatar */}
-            <div className="w-6 h-6 rounded-full border-2 border-white shadow-sm overflow-hidden bg-zinc-100 relative">
+            <div className="w-6 h-6 rounded-full border-2 border-white shadow-sm bg-zinc-100 relative">
               <Image 
                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${task.assigneeId || task.creatorId}`} 
                 alt="avatar"
                 fill
-                className="object-cover" 
+                className="object-cover rounded-full" 
+              />
+              <PresenceBadge 
+                uid={task.assigneeId || task.creatorId} 
+                className="absolute -bottom-0.5 -right-0.5 scale-75"
               />
             </div>
           </div>

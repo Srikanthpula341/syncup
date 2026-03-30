@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminDb } from '@/app/lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
@@ -22,7 +21,7 @@ export async function POST(req: Request) {
       userName,
       userAvatar: userAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
       text: text.trim(),
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: adminFirestore.FieldValue.serverTimestamp(),
     };
 
     // Save comment to Firestore
@@ -38,7 +37,7 @@ export async function POST(req: Request) {
         commentId: commentRef.id,
         preview: text.trim().substring(0, 50),
       },
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: adminFirestore.FieldValue.serverTimestamp(),
     });
 
     return NextResponse.json({ id: commentRef.id, success: true });

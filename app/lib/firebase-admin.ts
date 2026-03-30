@@ -3,21 +3,28 @@ import * as admin from 'firebase-admin';
 // Check if Firebase Admin is already initialized
 if (!admin.apps.length) {
   try {
-    // If we have service account info, use it. 
-    // Otherwise, it might fall back to application default credentials in environments like Vercel.
-    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+    const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+    if (projectId && clientEmail && privateKey) {
+      // Use service account credentials if available
       admin.initializeApp({
         credential: admin.credential.cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          projectId: projectId,
+          clientEmail: clientEmail,
+          privateKey: privateKey.replace(/\\n/g, '\n'),
         }),
       });
       console.log('Firebase Admin Initialized with Service Account');
+    } else if (projectId) {
+      // Initialize with Project ID as fallback for local dev or default credentials
+      admin.initializeApp({ projectId });
+      console.log(`Firebase Admin Initialized with Project ID: ${projectId}`);
     } else {
-      // Light initialization (works in some CI/CD or with application default credentials)
+      // Last resort attempt
       admin.initializeApp();
-      console.log('Firebase Admin Initialized with Default Credentials');
+      console.log('Firebase Admin Initialized with Default (no explicit ID)');
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -28,3 +35,4 @@ if (!admin.apps.length) {
 
 export const adminDb = admin.firestore();
 export const adminAuth = admin.auth();
+export const adminFirestore = admin.firestore;

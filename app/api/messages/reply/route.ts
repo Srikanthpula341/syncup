@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminDb } from '@/app/lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
@@ -30,7 +29,7 @@ export async function POST(req: Request) {
       userName,
       userAvatar: userAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
       content: content.trim(),
-      timestamp: FieldValue.serverTimestamp(),
+      timestamp: adminFirestore.FieldValue.serverTimestamp(),
       status: 'sent',
     };
 
@@ -40,8 +39,8 @@ export async function POST(req: Request) {
     const replyRef = await parentRef.collection('replies').add(replyData);
     
     await parentRef.update({
-      replyCount: FieldValue.increment(1),
-      lastReplyAt: FieldValue.serverTimestamp()
+      replyCount: adminFirestore.FieldValue.increment(1),
+      lastReplyAt: adminFirestore.FieldValue.serverTimestamp()
     });
 
     // Activity Log
@@ -54,7 +53,7 @@ export async function POST(req: Request) {
         channelId,
         replyPreview: content.trim().substring(0, 50),
       },
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: adminFirestore.FieldValue.serverTimestamp(),
     });
 
     return NextResponse.json({ id: replyRef.id, success: true });

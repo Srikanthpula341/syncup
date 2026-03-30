@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminDb } from '@/app/lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 
 export async function POST(req: Request) {
   try {
@@ -28,8 +27,8 @@ export async function POST(req: Request) {
       priority: priority || 'medium',
       dueDate: dueDate || null,
       creatorId,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
+      createdAt: adminFirestore.FieldValue.serverTimestamp(),
+      updatedAt: adminFirestore.FieldValue.serverTimestamp(),
     };
 
     // Save task to Firestore
@@ -45,7 +44,7 @@ export async function POST(req: Request) {
         taskTitle: title.trim(),
         columnId,
       },
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: adminFirestore.FieldValue.serverTimestamp(),
     });
 
     return NextResponse.json({ id: taskRef.id, success: true });

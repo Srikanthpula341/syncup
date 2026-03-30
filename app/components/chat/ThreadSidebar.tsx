@@ -15,6 +15,7 @@ import { db } from '@/app/lib/firebase';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
+import PresenceBadge from '../ui/PresenceBadge';
 
 interface Reply {
   id: string;
@@ -125,8 +126,12 @@ export default function ThreadSidebar() {
         {/* Parent Message */}
         <div className="pb-6 border-b border-zinc-100 mb-6">
           <div className="flex gap-3">
-             <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 relative">
-                 <Image src={parentMessage.userAvatar} alt="avatar" fill className="object-cover" />
+             <div className="w-9 h-9 rounded-lg shrink-0 relative">
+                 <Image src={parentMessage.userAvatar} alt="avatar" fill className="object-cover rounded-lg" />
+                 <PresenceBadge 
+                   uid={parentMessage.userId} 
+                   className="absolute -bottom-1 -right-1 scale-75"
+                 />
              </div>
              <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
@@ -142,8 +147,12 @@ export default function ThreadSidebar() {
         <div className="space-y-6">
           {replies.map((reply) => (
             <div key={reply.id} className="flex gap-3 group">
-               <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 relative">
-                  <Image src={reply.userAvatar} alt="avatar" fill className="object-cover" />
+               <div className="w-8 h-8 rounded-lg shrink-0 relative">
+                  <Image src={reply.userAvatar} alt="avatar" fill className="object-cover rounded-lg" />
+                  <PresenceBadge 
+                    uid={reply.userId} 
+                    className="absolute -bottom-1 -right-1 scale-75"
+                  />
                </div>
                <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">

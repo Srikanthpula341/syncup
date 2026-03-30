@@ -1,65 +1,16 @@
 'use client'
 
-import React from 'react'
 import Image from 'next/image'
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
 import FooterComponent from '../footer'
+import { FeatureCard } from './FeatureCard'
+import { StatItem } from './StatItem'
+import { Navbar } from './Navbar'
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
 
-const Navbar = () => {
-  return (
-    <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto w-full">
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-[#FF6B35] rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-xl">S</span>
-        </div>
-        <span className="text-2xl font-bold tracking-tight text-[#FF6B35]">SYNCUP</span>
-      </div>
-      
-      <div className="hidden md:flex items-center gap-8 text-gray-600 font-medium">
-        <a href="#" className="hover:text-[#FF6B35] transition-colors">Home</a>
-        <a href="#" className="hover:text-[#FF6B35] transition-colors">Why us?</a>
-        <a href="#" className="hover:text-[#FF6B35] transition-colors">Features</a>
-        <a href="#" className="hover:text-[#FF6B35] transition-colors">SyncUp web</a>
-      </div>
 
-      <button className="bg-[#FF6B35] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#e85a2a] transition-all shadow-lg shadow-orange-200">
-        Download
-      </button>
-    </nav>
-  )
-}
 
-const FeatureCard = ({ icon, title, description, color }: { icon: string, title: string, description: string, color: string }) => (
-  <div className="flex flex-col items-center text-center p-6 transition-transform hover:scale-105">
-    <div className={cn("w-32 h-32 rounded-3xl mb-6 relative overflow-hidden shadow-xl", color)}>
-      <Image 
-        src={icon} 
-        alt={title} 
-        fill 
-        className="object-cover p-4"
-      />
-    </div>
-    <h3 className="font-bold text-lg mb-2">{title}</h3>
-    <p className="text-sm text-gray-500 max-w-[150px]">{description}</p>
-  </div>
-)
 
-const StatItem = ({ icon: Icon, value, label }: { icon: React.ReactNode, value: string, label: string }) => (
-  <div className="flex items-start gap-4 p-4">
-    <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400">
-      {Icon}
-    </div>
-    <div>
-      <div className="text-3xl font-bold text-gray-900">{value}</div>
-      <div className="text-sm text-gray-500">{label}</div>
-    </div>
-  </div>
-)
+
 
 const LandingComponent = () => {
   return (

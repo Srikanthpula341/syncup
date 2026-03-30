@@ -7,12 +7,9 @@ import {
   onSnapshot, 
   orderBy, 
   limit, 
-  serverTimestamp,
-  addDoc,
   doc,
   setDoc,
   updateDoc,
-  increment
 } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
@@ -186,46 +183,25 @@ export const useChat = () => {
   const sendMessage = async (content: string) => {
     if (!user || !activeChannelId || !content.trim()) return;
 
-    const messageData = {
-      userId: user.uid,
-      userName: user.displayName || user.email,
-      userAvatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`,
-      content: content.trim(),
-      timestamp: serverTimestamp(),
-      status: 'sent',
-    };
-
     try {
-      const isDM = activeChannelId.startsWith('dm-');
-      const messagesCollection = isDM
-        ? collection(db, 'dms', activeChannelId, 'messages')
-        : activeWorkspaceId 
-           ? collection(db, 'workspaces', activeWorkspaceId, 'channels', activeChannelId, 'messages')
-           : null;
+      const response = await fetch('/api/messages/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: content.trim(),
+          userId: user.uid,
+          userName: user.displayName || user.email,
+          userAvatar: user.photoURL,
+          workspaceId: activeWorkspaceId,
+          channelId: activeChannelId,
+        }),
+      });
 
-      if (!messagesCollection) {
-        toast.error("No active conversation found.");
-        return;
+      if (!response.ok) {
+        throw new Error('Failed to send message via API');
       }
-
-      await addDoc(messagesCollection, messageData);
       
-      // Ping the user's activity to keep them "Online" locally
-      updateDoc(doc(db, 'users', user.uid), {
-        lastSeen: serverTimestamp()
-      }).catch(() => {});
-      
-      // Increment target unread count for DMs
-      if (isDM) {
-        const recipientUid = activeChannelId.replace('dm-', '').split('_').find(id => id !== user.uid);
-        if (recipientUid) {
-          setDoc(doc(db, 'unread_counts', recipientUid), {
-            [activeChannelId]: increment(1)
-          }, { merge: true }).catch(() => {});
-        }
-      }
-
-      // Removed the redundant "Message sent!" toast for a smoother, premium chat experience
+      // The API handles activity logging, unread counts, and lastSeen updates.
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       toast.error(`Failed to send: ${errorMessage}`);

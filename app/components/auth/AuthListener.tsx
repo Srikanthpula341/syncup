@@ -8,12 +8,16 @@ import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { setAuthUser, setAuthLoading } from '@/app/store/slices/authSlice';
 import { useRouter, usePathname } from 'next/navigation';
 import LoadingScreen from '@/app/components/ui/LoadingScreen';
+import { useChat } from '@/app/hooks/useChat';
 
 export default function AuthListener() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
   const { status } = useAppSelector((state) => state.auth);
+
+  // Initialize global chat/user sync
+  useChat();
 
   useEffect(() => {
     dispatch(setAuthLoading());

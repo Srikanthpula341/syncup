@@ -9,9 +9,11 @@ import {
   Activity,
   Building2,
   LogOut,
+  Settings,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
+import { setSettingsModalOpen } from "@/app/store/slices/uiSlice";
 import { signOut } from "firebase/auth";
 import { auth } from "@/app/lib/firebase";
 import { signOut as clearAuth } from "@/app/store/slices/authSlice";
@@ -30,6 +32,11 @@ export default function Sidebar() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { activeWorkspaceId } = useAppSelector((state) => state.ui);
+  const { workspaces } = useAppSelector((state) => state.chat);
+
+  const activeWorkspace = workspaces.find(w => w.id === activeWorkspaceId);
+  const isOwner = activeWorkspace?.ownerId === user?.uid;
 
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
@@ -96,6 +103,20 @@ export default function Sidebar() {
       </div>
 
       <div className="mt-auto flex flex-col items-center gap-6">
+        {isOwner && (
+           <div
+             onClick={() => dispatch(setSettingsModalOpen(true))}
+             className="flex flex-col items-center gap-1 cursor-pointer group"
+             title="Workspace Settings"
+           >
+             <div className="p-2 rounded-xl text-zinc-500 group-hover:text-orange-500 group-hover:bg-orange-50 transition">
+               <Settings size={18} />
+             </div>
+             <span className="text-[11px] text-zinc-500 group-hover:text-orange-500">
+               Settings
+             </span>
+           </div>
+        )}
         <div
           onClick={handleLogout}
           className="flex flex-col items-center gap-1 cursor-pointer group"

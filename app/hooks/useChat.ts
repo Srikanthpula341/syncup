@@ -78,7 +78,11 @@ export const useChat = () => {
     const q = query(collection(db, 'workspaces'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Workspace[];
+        const data = snapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data(),
+          ownerId: doc.data().ownerId || '' 
+        })) as Workspace[];
         dispatch(setWorkspaces(data));
       },
       (error) => {

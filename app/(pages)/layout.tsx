@@ -4,6 +4,7 @@ import React from 'react'
 import Sidebar from './Sidebar';
 import PresenceProvider from '@/app/components/providers/PresenceProvider';
 import { useNotifications } from '@/app/hooks/useNotifications';
+import WorkspaceSettingsModal from '@/app/components/workspaces/WorkspaceSettingsModal';
 
 export default function PagesLayout({
   children,
@@ -25,6 +26,8 @@ export default function PagesLayout({
           {children}
         </main>
       </div>
+
+      <WorkspaceSettingsModal />
     </PresenceProvider>
   );
 }

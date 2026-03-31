@@ -4,6 +4,7 @@ interface UIState {
   isSidebarOpen: boolean;
   isMobileMenuOpen: boolean;
   isThreadOpen: boolean;
+  isSettingsModalOpen: boolean;
   activeWorkspaceId: string | null;
   activeChannelId: string | null;
   activeThreadMessageId: string | null;
@@ -13,6 +14,7 @@ const initialState: UIState = {
   isSidebarOpen: true,
   isMobileMenuOpen: false,
   isThreadOpen: false,
+  isSettingsModalOpen: false,
   activeWorkspaceId: 'syncup-workspace',
   activeChannelId: 'general',
   activeThreadMessageId: null,
@@ -46,6 +48,9 @@ const uiSlice = createSlice({
       state.activeChannelId = action.payload;
       state.isMobileMenuOpen = false; // Auto-close on select
     },
+    setSettingsModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isSettingsModalOpen = action.payload;
+    },
   },
 });
 
@@ -57,6 +62,7 @@ export const {
   closeThread,
   setActiveWorkspace,
   setActiveChannel,
+  setSettingsModalOpen,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

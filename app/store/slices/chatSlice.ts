@@ -33,6 +33,7 @@ export interface Workspace {
   id: string;
   name: string;
   avatar: string;
+  ownerId: string;
 }
 
 export interface AppUser {

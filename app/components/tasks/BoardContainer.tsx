@@ -73,40 +73,43 @@ export default function BoardContainer() {
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Board Header */}
-      <div className="p-6 pb-2 border-b border-zinc-100 bg-white sticky top-0 z-20">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
-          <div className="flex items-center gap-4">
-             <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/20 shrink-0">
-                <Layout size={24} />
+      <div className="p-4 lg:p-6 pb-2 border-b border-zinc-100 bg-white sticky top-0 z-20">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 lg:gap-6 mb-4 lg:mb-6">
+          <div className="flex items-center gap-3 lg:gap-4">
+             <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/20 shrink-0">
+                <Layout size={20} className="lg:hidden" />
+                <Layout size={24} className="hidden lg:block" />
              </div>
-             <div>
-                <h1 className="text-2xl font-black text-zinc-900 tracking-tight">Kanban Board</h1>
-                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest truncate">Workspace Tasks & Sprint Planning</p>
+             <div className="min-w-0">
+                <h1 className="text-xl lg:text-2xl font-black text-zinc-900 tracking-tight truncate">Kanban Board</h1>
+                <p className="text-[10px] lg:text-xs font-semibold text-zinc-400 uppercase tracking-widest truncate">Workspace Tasks & Sprint Planning</p>
              </div>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 lg:gap-3">
              <button 
                 onClick={() => setIsModalOpen(true)}
-                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-colors shadow-lg shadow-zinc-900/10"
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 lg:px-4 py-2 text-xs lg:text-sm font-bold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-colors shadow-lg shadow-zinc-900/10"
              >
-                <PlusCircle size={18} />
+                <PlusCircle size={16} className="lg:hidden" />
+                <PlusCircle size={18} className="hidden lg:block" />
                 <span>Create Task</span>
              </button>
-             <button className="p-2.5 text-zinc-500 hover:bg-zinc-100 rounded-xl transition-colors border border-zinc-200 shadow-sm">
+             <button className="p-2 lg:p-2.5 text-zinc-500 hover:bg-zinc-100 rounded-xl transition-colors border border-zinc-200 shadow-sm">
                 <Filter size={18} />
              </button>
           </div>
         </div>
 
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-2 border-t border-zinc-50 pt-4 md:border-none md:pt-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 lg:gap-4 pb-2 border-t border-zinc-50 pt-3 lg:pt-0 md:border-none">
            <div className="relative group w-full sm:max-w-xs">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-orange-500 transition-colors" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 lg:hidden" />
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 hidden lg:block group-focus-within:text-orange-500 transition-colors" />
               <input 
                 type="text" 
                 placeholder="Find a task..." 
-                className="pl-10 pr-4 py-2 bg-zinc-50/50 border border-zinc-200 rounded-xl text-sm outline-none focus:border-orange-500 focus:bg-white transition-all w-full"
+                className="pl-9 lg:pl-10 pr-4 py-1.5 lg:py-2 bg-zinc-50/50 border border-zinc-200 rounded-xl text-xs lg:text-sm outline-none focus:border-orange-500 focus:bg-white transition-all w-full"
               />
            </div>
            
@@ -121,9 +124,9 @@ export default function BoardContainer() {
       </div>
 
       {/* Board Scroll Area */}
-      <div className="flex-1 overflow-x-auto p-6 bg-zinc-50/30">
+      <div className="flex-1 overflow-y-auto lg:overflow-x-auto p-3 lg:p-6bg-zinc-50/30 snap-x snap-mandatory scroll-smooth no-scrollbar">
         <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex gap-6 h-full min-h-[500px]">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 h-full min-h-[400px]">
             {COLUMNS.map(column => (
               <Column 
                 key={column.id} 

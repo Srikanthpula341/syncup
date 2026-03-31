@@ -21,14 +21,14 @@ export default function PagesLayout({
 
   return (
     <PresenceProvider>
-      <div className="flex h-screen overflow-hidden bg-white">
+      <div className="flex h-screen bg-white">
         {/* Sidebar */}
         <aside className="hidden lg:block w-20 lg:w-24 shrink-0 border-r border-zinc-100 bg-white">
           <Sidebar />
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-hidden bg-white relative mb-8 lg:pb-0">
+        <main className="flex-1 bg-white relative mb-8 lg:pb-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}

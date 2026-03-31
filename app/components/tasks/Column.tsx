@@ -17,7 +17,7 @@ interface ColumnProps {
 
 export default function Column({ id, title, tasks, count, highlightedTaskId }: ColumnProps) {
   return (
-    <div className="flex flex-col w-80 min-w-[320px] bg-zinc-100/50 rounded-2xl border border-zinc-200/60 overflow-hidden shadow-sm h-full">
+    <div className="flex flex-col w-[85vw] min-w-[280px] sm:w-80 sm:min-w-[320px] bg-zinc-100/50 rounded-2xl border border-zinc-200/60 overflow-hidden shadow-sm h-full snap-center shrink-0">
       {/* Column Header */}
       <div className="p-4 flex items-center justify-between border-b border-zinc-200/40 bg-zinc-50/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center gap-3">

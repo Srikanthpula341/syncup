@@ -3,16 +3,16 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/app/store/hooks';
+import { ROUTES } from '@/app/lib/route-constants';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { status } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    // If auth listener has finished and user is not authenticated, redirect.
-    // if (status === 'unauthenticated') {
-    //   router.push('/auth');
-    // }
+    if (status === 'unauthenticated') {
+      router.push(ROUTES.AUTH);
+    }
   }, [status, router]);
 
   // Show a premium loading state while determining auth status

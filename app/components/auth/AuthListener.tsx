@@ -9,6 +9,7 @@ import { setAuthUser, setAuthLoading } from '@/app/store/slices/authSlice';
 import { useRouter, usePathname } from 'next/navigation';
 import LoadingScreen from '@/app/components/ui/LoadingScreen';
 import { useChat } from '@/app/hooks/useChat';
+import { ROUTES, PROTECTED_ROUTES } from '@/app/lib/route-constants';
 
 export default function AuthListener() {
   const dispatch = useAppDispatch();
@@ -55,17 +56,15 @@ export default function AuthListener() {
   useEffect(() => {
     if (status === 'loading') return;
 
-    const isAuthPage = pathname === '/auth';
-    const isRootPage = pathname === '/';
+    const isAuthPage = pathname === ROUTES.AUTH;
+    const isRootPage = pathname === ROUTES.ROOT;
     
-    // Protect: /chat, /tasks, /activity, /workspaces, /profile
-    const protectedRoutes = ['/chat', '/tasks', '/activity', '/workspaces', '/profile'];
-    const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+    const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
 
     if (status === 'unauthenticated' && isProtectedRoute) {
-        router.push('/auth');
+        router.push(ROUTES.AUTH);
     } else if (status === 'authenticated' && (isAuthPage || isRootPage)) {
-        router.push('/chat');
+        router.push(ROUTES.CHAT);
     }
   }, [status, pathname, router]);
 

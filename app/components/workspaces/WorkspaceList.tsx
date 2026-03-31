@@ -5,6 +5,7 @@ import { setActiveWorkspace } from '@/app/store/slices/uiSlice';
 import { ArrowRight, Globe, LayoutGrid, Lock, Plus, Settings, Users } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/app/lib/route-constants';
 
 export default function WorkspaceList() {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function WorkspaceList() {
 
   const handleSwitchWorkspace = (workspaceId: string) => {
     dispatch(setActiveWorkspace(workspaceId));
-    router.push('/chat');
+    router.push(ROUTES.CHAT);
   };
 
   return (

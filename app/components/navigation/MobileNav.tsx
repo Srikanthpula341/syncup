@@ -11,13 +11,14 @@ import {
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppSelector } from '@/app/store/hooks';
 import Image from 'next/image';
+import { ROUTES } from '@/app/lib/route-constants';
 
 const menu = [
-  { name: "Chat", icon: MessageCircle, path: "/chat" },
-  { name: "Tasks", icon: CheckSquare, path: "/tasks" },
-  { name: "Activity", icon: Activity, path: "/activity" },
-  { name: "Workspace", icon: Building2, path: "/workspaces" },
-  { name: "Profile", icon: User, path: "/profile" },
+  { name: "Chat", icon: MessageCircle, path: ROUTES.CHAT },
+  { name: "Tasks", icon: CheckSquare, path: ROUTES.TASKS },
+  { name: "Activity", icon: Activity, path: ROUTES.ACTIVITY },
+  { name: "Workspace", icon: Building2, path: ROUTES.WORKSPACES },
+  { name: "Profile", icon: User, path: ROUTES.PROFILE },
 ];
 
 export default function MobileNav() {

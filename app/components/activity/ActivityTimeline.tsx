@@ -20,6 +20,7 @@ import { useAppDispatch } from '@/app/store/hooks';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/app/lib/utils';
 import Image from 'next/image';
+import { ROUTES } from '@/app/lib/route-constants';
 
 const activityIcons = {
   MESSAGE_SENT: { icon: MessageSquare, color: 'bg-blue-500', label: 'Message Sent' },
@@ -39,7 +40,7 @@ export default function ActivityTimeline() {
 
   const handleBack = () => {
     dispatch(setActiveChannel(null));
-    router.push('/chat');
+    router.push(ROUTES.CHAT);
   };
 
   const getActivityUser = (uid: string) => {
@@ -110,7 +111,7 @@ export default function ActivityTimeline() {
                   )}
                   onClick={() => {
                     if (isTaskRelated) {
-                      router.push(`/tasks?taskId=${activity.entityId}`);
+                      router.push(`${ROUTES.TASKS}?taskId=${activity.entityId}`);
                     }
                   }}
                 >

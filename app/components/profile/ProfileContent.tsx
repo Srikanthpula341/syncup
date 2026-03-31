@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useAppSelector, useAppDispatch } from '@/app/store/hooks';
-import { Mail, Shield, User, Briefcase, Activity, Calendar, LogOut, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Mail, Shield, User, Briefcase, Activity, LogOut, CheckCircle2, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 import { auth } from '@/app/lib/firebase';
 import { useRouter } from 'next/navigation';
@@ -10,6 +10,7 @@ import { useTasks } from '@/app/hooks/useTasks';
 import { useActivities } from '@/app/hooks/useActivities';
 import { cn } from '@/app/lib/utils';
 import { signOut as clearAuth } from '@/app/store/slices/authSlice';
+import { ROUTES } from '@/app/lib/route-constants';
 
 export default function ProfileContent() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function ProfileContent() {
     try {
       await auth.signOut();
       dispatch(clearAuth()); // Clear Redux state
-      router.push('/auth');
+      router.push(ROUTES.AUTH);
     } catch (error) {
       console.error("Logout failed:", error);
     }

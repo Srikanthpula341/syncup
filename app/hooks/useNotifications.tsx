@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from 'react';
 import { useAppSelector, useAppDispatch } from '@/app/store/hooks';
 import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/app/lib/route-constants';
 import { setActiveChannel } from '@/app/store/slices/uiSlice';
 import { 
   collection, 
@@ -65,9 +66,9 @@ export const useNotifications = () => {
             n.onclick = () => {
               window.focus();
               if (data.channelId) {
-                dispatch(setActiveChannel(data.channelId));
-                router.push('/chat');
-              }
+                      dispatch(setActiveChannel(data.channelId));
+                     router.push(ROUTES.CHAT);
+                   }
             };
           }
 
@@ -79,7 +80,7 @@ export const useNotifications = () => {
                  onClick={() => {
                    if (data.channelId) {
                      dispatch(setActiveChannel(data.channelId));
-                     router.push('/chat');
+                     router.push(ROUTES.CHAT);
                    }
                  }}
               >

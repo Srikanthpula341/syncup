@@ -11,13 +11,14 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
 import { setSettingsModalOpen } from "@/app/store/slices/uiSlice";
+import { ROUTES } from "@/app/lib/route-constants";
 
 const menu = [
-  { name: "Chat", icon: MessageCircle, path: "/chat" },
-  { name: "Tasks", icon: CheckSquare, path: "/tasks" },
-  { name: "Activity", icon: Activity, path: "/activity" },
-  { name: "Workspace", icon: Building2, path: "/workspaces" },
-  { name: "Profile", icon: Users, path: "/profile" },
+  { name: "Chat", icon: MessageCircle, path: ROUTES.CHAT },
+  { name: "Tasks", icon: CheckSquare, path: ROUTES.TASKS },
+  { name: "Activity", icon: Activity, path: ROUTES.ACTIVITY },
+  { name: "Workspace", icon: Building2, path: ROUTES.WORKSPACES },
+  { name: "Profile", icon: Users, path: ROUTES.PROFILE },
 ];
 
 export default function Sidebar() {
@@ -37,7 +38,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div
         className="mb-6 text-orange-500 font-bold text-lg cursor-pointer"
-        onClick={() => router.push("/chat")}
+        onClick={() => router.push(ROUTES.CHAT)}
       >
         S
       </div>

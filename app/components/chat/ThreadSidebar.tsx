@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import PresenceBadge from '../ui/PresenceBadge';
+import { api } from '@/app/lib/api-client';
 
 interface Reply {
   id: string;
@@ -73,21 +74,15 @@ export default function ThreadSidebar() {
 
     setSending(true);
     try {
-      const response = await fetch('/api/messages/reply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: replyText.trim(),
-          userId: user.uid,
-          userName: user.displayName || user.email,
-          userAvatar: user.photoURL,
-          workspaceId: activeWorkspaceId,
-          channelId: activeChannelId,
-          parentMessageId: activeThreadMessageId
-        })
+      await api.messages.reply({
+        content: replyText.trim(),
+        userId: user.uid,
+        userName: user.displayName || user.email || '',
+        userAvatar: user.photoURL || '',
+        workspaceId: activeWorkspaceId,
+        channelId: activeChannelId,
+        parentMessageId: activeThreadMessageId
       });
-
-      if (!response.ok) throw new Error('Failed to send reply');
       setReplyText('');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -100,7 +95,7 @@ export default function ThreadSidebar() {
   if (!activeThreadMessageId || !parentMessage) return null;
 
   return (
-    <div className="w-[400px] border-l border-zinc-200 bg-white flex flex-col h-full shadow-2xl animate-in slide-in-from-right duration-300">
+    <div className="fixed inset-0 lg:relative lg:inset-auto z-[150] lg:z-0 w-full lg:w-[400px] border-l border-zinc-200 bg-white flex flex-col h-full shadow-2xl animate-in slide-in-from-right duration-300">
       {/* Header */}
       <div className="p-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
         <div className="flex items-center gap-2">

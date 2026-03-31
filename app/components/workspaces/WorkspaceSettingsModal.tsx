@@ -5,9 +5,9 @@ import { useAppSelector, useAppDispatch } from '@/app/store/hooks';
 import { setSettingsModalOpen } from '@/app/store/slices/uiSlice';
 import { X, Users, Settings, ShieldAlert, Save, Trash2, UserMinus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import { cn } from '@/app/lib/utils';
 import toast from 'react-hot-toast';
+import { api } from '@/app/lib/api-client';
 
 const TABS = [
   { id: 'general', name: 'General', icon: Settings },
@@ -36,19 +36,13 @@ export default function WorkspaceSettingsModal() {
     
     setIsSaving(true);
     try {
-      const resp = await fetch('/api/workspaces/update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspaceId: activeWorkspaceId,
-          userId: currentUser.uid,
-          name: workspaceName.trim()
-        }),
+      await api.workspaces.update({
+        workspaceId: activeWorkspaceId,
+        userId: currentUser.uid,
+        name: workspaceName.trim()
       });
-
-      if (!resp.ok) throw new Error('Update failed');
       toast.success('Workspace updated successfully');
-    } catch (err) {
+    } catch {
       toast.error('Failed to update workspace');
     } finally {
       setIsSaving(false);
@@ -62,7 +56,7 @@ export default function WorkspaceSettingsModal() {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}

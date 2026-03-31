@@ -12,6 +12,8 @@ import { db } from '@/app/lib/firebase';
 import { useAppSelector } from '@/app/store/hooks';
 import toast from 'react-hot-toast';
 
+import { api } from '@/app/lib/api-client';
+
 export interface Task {
   id: string;
   workspaceId: string;
@@ -28,15 +30,18 @@ export interface Task {
 
 export const useTasks = (workspaceId: string | null) => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!workspaceId);
+  const [prevWorkspaceId, setPrevWorkspaceId] = useState(workspaceId);
   const { user } = useAppSelector((state) => state.auth);
 
+  if (workspaceId !== prevWorkspaceId) {
+    setPrevWorkspaceId(workspaceId);
+    setTasks([]);
+    setLoading(!!workspaceId);
+  }
+
   useEffect(() => {
-    if (!workspaceId) {
-      setTasks([]);
-      setLoading(false);
-      return;
-    }
+    if (!workspaceId) return;
 
     const q = query(
       collection(db, 'tasks'),
@@ -67,18 +72,11 @@ export const useTasks = (workspaceId: string | null) => {
     if (!user || !workspaceId) return;
 
     try {
-      const response = await fetch('/api/tasks/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...taskData,
-          workspaceId,
-          creatorId: user.uid,
-        }),
+      return await api.tasks.create({
+        ...taskData,
+        workspaceId,
+        creatorId: user.uid,
       });
-
-      if (!response.ok) throw new Error('Failed to create task');
-      return await response.json();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       toast.error(message);
@@ -89,20 +87,14 @@ export const useTasks = (workspaceId: string | null) => {
     if (!user || !workspaceId) return;
 
     try {
-      const response = await fetch('/api/tasks/move', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          taskId,
-          userId: user.uid,
-          workspaceId,
-          newColumnId,
-          oldColumnName,
-          newColumnName,
-        }),
+      await api.tasks.move({
+        taskId,
+        userId: user.uid,
+        workspaceId,
+        newColumnId,
+        oldColumnName,
+        newColumnName,
       });
-
-      if (!response.ok) throw new Error('Failed to move task');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       toast.error(message);

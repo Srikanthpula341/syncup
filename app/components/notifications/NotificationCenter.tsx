@@ -18,6 +18,7 @@ import { db } from '@/app/lib/firebase';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/app/lib/utils';
 import toast from 'react-hot-toast';
+import { api } from '@/app/lib/api-client';
 
 interface Notification {
   id: string;
@@ -77,14 +78,10 @@ export default function NotificationCenter() {
     
     // 1. Mark as Read via API
     if (!notif.isRead) {
-      fetch('/api/notifications/manage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.uid,
-          notificationId: notif.id,
-          action: 'MARK_READ'
-        })
+      api.notifications.manage({
+        userId: user.uid,
+        notificationId: notif.id,
+        action: 'MARK_READ'
       }).catch(console.error);
     }
 
@@ -100,13 +97,9 @@ export default function NotificationCenter() {
   const markAllAsRead = async () => {
     if (!user || unreadCount === 0) return;
     try {
-      await fetch('/api/notifications/manage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.uid,
-          action: 'READ_ALL'
-        })
+      await api.notifications.manage({
+        userId: user.uid,
+        action: 'READ_ALL'
       });
       toast.success('All marked as read');
     } catch (err) {
@@ -122,14 +115,10 @@ export default function NotificationCenter() {
     // Let's implement individual deletes via API for each.
     
     notifications.forEach(n => {
-      fetch('/api/notifications/manage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.uid,
-          notificationId: n.id,
-          action: 'DELETE'
-        })
+      api.notifications.manage({
+        userId: user.uid,
+        notificationId: n.id,
+        action: 'DELETE'
       }).catch(console.error);
     });
     
@@ -160,7 +149,7 @@ export default function NotificationCenter() {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 mt-2 w-80 bg-white border border-zinc-200 rounded-2xl shadow-2xl z-50 overflow-hidden"
+            className="absolute right-0 mt-2 w-80 bg-white border border-zinc-200 rounded-2xl shadow-2xl z-100 overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">

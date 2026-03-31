@@ -69,19 +69,19 @@ export default function BoardContainer() {
     <div className="h-full flex flex-col bg-white">
       {/* Board Header */}
       <div className="p-6 pb-2 border-b border-zinc-100 bg-white sticky top-0 z-20">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
           <div className="flex items-center gap-4">
-             <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
+             <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/20 shrink-0">
                 <Layout size={24} />
              </div>
              <div>
                 <h1 className="text-2xl font-black text-zinc-900 tracking-tight">Kanban Board</h1>
-                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest">Workspace Tasks & Sprint Planning</p>
+                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest truncate">Workspace Tasks & Sprint Planning</p>
              </div>
           </div>
           
           <div className="flex items-center gap-3">
-             <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-colors shadow-lg shadow-zinc-900/10">
+             <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-colors shadow-lg shadow-zinc-900/10">
                 <PlusCircle size={18} />
                 <span>Create Task</span>
              </button>
@@ -92,22 +92,22 @@ export default function BoardContainer() {
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center gap-6 pb-2 overflow-x-auto no-scrollbar">
-           <div className="relative group max-w-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-2 border-t border-zinc-50 pt-4 md:border-none md:pt-0">
+           <div className="relative group w-full sm:max-w-xs">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-orange-500 transition-colors" />
               <input 
                 type="text" 
                 placeholder="Find a task..." 
-                className="pl-10 pr-4 py-2 bg-zinc-50/50 border border-zinc-200 rounded-xl text-sm outline-none focus:border-orange-500 focus:bg-white transition-all w-64 md:w-80"
+                className="pl-10 pr-4 py-2 bg-zinc-50/50 border border-zinc-200 rounded-xl text-sm outline-none focus:border-orange-500 focus:bg-white transition-all w-full"
               />
            </div>
            
-           <div className="w-px h-6 bg-zinc-200" />
+           <div className="hidden sm:block w-px h-6 bg-zinc-200" />
            
-           <div className="flex items-center gap-2">
-              <p className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Active Filters:</p>
-              <span className="px-3 py-1 bg-orange-50 text-orange-600 border border-orange-100 rounded-lg text-xs font-bold shadow-sm">All Tasks</span>
-              <span className="px-3 py-1 bg-zinc-50 text-zinc-500 border border-zinc-200 rounded-lg text-xs font-bold hover:bg-zinc-100 cursor-pointer transition-colors shadow-sm">My Tasks</span>
+           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+              <p className="text-[10px] font-black uppercase text-zinc-400 tracking-widest whitespace-nowrap">Active:</p>
+              <span className="px-3 py-1 bg-orange-50 text-orange-600 border border-orange-100 rounded-lg text-xs font-bold shadow-sm whitespace-nowrap">All Tasks</span>
+              <span className="px-3 py-1 bg-zinc-50 text-zinc-500 border border-zinc-200 rounded-lg text-xs font-bold hover:bg-zinc-100 cursor-pointer transition-colors shadow-sm whitespace-nowrap">My Tasks</span>
            </div>
         </div>
       </div>

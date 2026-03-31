@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { 
   collection, 
   query, 
@@ -26,12 +26,20 @@ import {
   Attachment,
   setUnreadCounts
 } from '@/app/store/slices/chatSlice';
+import { api } from '@/app/lib/api-client';
+import { debounce } from '@/app/lib/api-utils';
+import { API_CONFIG } from '@/app/lib/api-constants';
 
 export const useChat = () => {
   const dispatch = useAppDispatch();
   const { activeWorkspaceId, activeChannelId } = useAppSelector((state) => state.ui);
   const { workspaces, channels } = useAppSelector((state) => state.chat);
   const { user } = useAppSelector((state) => state.auth);
+  
+  const debouncedMarkRead = useMemo(() => 
+    debounce(api.messages.markRead, API_CONFIG.MARK_READ_DEBOUNCE),
+    []
+  );
 
   // 0. Global User Sync
   useEffect(() => {
@@ -148,15 +156,11 @@ export const useChat = () => {
         });
 
         if (hasUnread) {
-          fetch('/api/messages/mark-read', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              channelId: activeChannelId, 
-              userId: user.uid,
-              workspaceId: activeWorkspaceId 
-            }),
-          }).catch(console.error);
+          debouncedMarkRead({ 
+            channelId: activeChannelId, 
+            userId: user.uid,
+            workspaceId: activeWorkspaceId 
+          });
         }
       },
       (error) => {
@@ -170,7 +174,7 @@ export const useChat = () => {
       }
     );
     return () => unsubscribe();
-  }, [activeWorkspaceId, activeChannelId, dispatch, user]);
+  }, [activeWorkspaceId, activeChannelId, dispatch, user, debouncedMarkRead]);
 
   // 4. Seperate Auto-Selection Logic
   useEffect(() => {
@@ -180,6 +184,9 @@ export const useChat = () => {
   }, [workspaces, activeWorkspaceId, dispatch]);
 
   useEffect(() => {
+    // Only auto-select on desktop (lg: 1024px)
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) return;
+
     if (channels.length > 0 && !activeChannelId) {
       dispatch(setActiveChannel(channels[0].id));
     }
@@ -188,38 +195,26 @@ export const useChat = () => {
   // Reset unread count when opening a channel
   useEffect(() => {
     if (!activeChannelId || !user) return;
-    fetch('/api/messages/mark-read', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        channelId: activeChannelId, 
-        userId: user.uid,
-        workspaceId: activeWorkspaceId 
-      }),
-    }).catch(console.error);
-  }, [activeChannelId, user, activeWorkspaceId]);
+    debouncedMarkRead({ 
+      channelId: activeChannelId, 
+      userId: user.uid,
+      workspaceId: activeWorkspaceId 
+    });
+  }, [activeChannelId, user, activeWorkspaceId, debouncedMarkRead]);
 
   const sendMessage = async (content: string, attachments: Attachment[] = []) => {
     if (!user || !activeChannelId || (!content.trim() && attachments.length === 0)) return;
 
     try {
-      const response = await fetch('/api/messages/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: content.trim(),
-          attachments,
-          userId: user.uid,
-          userName: user.displayName || user.email,
-          userAvatar: user.photoURL,
-          workspaceId: activeWorkspaceId,
-          channelId: activeChannelId,
-        }),
+      await api.messages.send({
+        content: content.trim(),
+        attachments,
+        userId: user.uid,
+        userName: user.displayName || user.email || '',
+        userAvatar: user.photoURL || '',
+        workspaceId: activeWorkspaceId,
+        channelId: activeChannelId,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to send message via API');
-      }
       
       // The API handles activity logging, unread counts, and lastSeen updates.
     } catch (error: unknown) {
@@ -235,22 +230,14 @@ export const useChat = () => {
     const action = hasReacted ? 'REMOVE' : 'ADD';
 
     try {
-      const response = await fetch('/api/messages/react', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messageId,
-          emoji,
-          userId: user.uid,
-          workspaceId: activeWorkspaceId,
-          channelId: activeChannelId,
-          action
-        }),
+      await api.messages.react({
+        messageId,
+        emoji,
+        userId: user.uid,
+        workspaceId: activeWorkspaceId,
+        channelId: activeChannelId,
+        action
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to update reaction');
-      }
     } catch (error: unknown) {
       console.error('Reaction error', error);
       toast.error('Failed to update reaction');

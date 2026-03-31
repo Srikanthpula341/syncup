@@ -1,15 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useRef } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
-import { Check, CheckCheck, MessageSquare, FileIcon, Download, ExternalLink } from "lucide-react";
+import { Check, CheckCheck, MessageSquare, FileIcon, Download, ExternalLink, Smile } from "lucide-react";
 import { format } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 import TypingIndicator from "./TypingIndicator";
 import { openThread } from "@/app/store/slices/uiSlice";
 import { Attachment } from "@/app/store/slices/chatSlice";
 import Image from "next/image";
 import PresenceBadge from "../ui/PresenceBadge";
 import { cn } from "@/app/lib/utils";
+import { useChat } from "@/app/hooks/useChat";
 
 const AttachmentGrid = ({ attachments, isMe }: { attachments: Attachment[], isMe: boolean }) => {
   if (!attachments || attachments.length === 0) return null;
@@ -76,10 +79,88 @@ const AttachmentGrid = ({ attachments, isMe }: { attachments: Attachment[], isMe
   );
 };
 
+const QuickReact = ({ onReact }: { onReact: (emoji: string) => void }) => {
+  const emojis = ['👍', '❤️', '🔥', '🎉', '🚀', '👀'];
+  return (
+    <div className="flex items-center gap-1 px-1 border-r border-zinc-100 mr-1">
+      {emojis.map(emoji => (
+        <button
+          key={emoji}
+          onClick={() => onReact(emoji)}
+          className="w-7 h-7 flex items-center justify-center hover:bg-zinc-100 rounded-lg transition-colors text-base hover:scale-125 duration-200"
+        >
+          {emoji}
+        </button>
+      ))}
+      <button 
+        className="w-7 h-7 flex items-center justify-center hover:bg-zinc-100 rounded-lg transition-colors text-zinc-400"
+        title="More reactions"
+      >
+        <Smile size={14} />
+      </button>
+    </div>
+  );
+};
+
+const ReactionPills = ({ 
+  reactions, 
+  onReact, 
+  currentUserId,
+  isMe,
+  users
+}: { 
+  reactions?: Record<string, string[]>, 
+  onReact: (emoji: string) => void,
+  currentUserId: string,
+  isMe: boolean,
+  users: any[]
+}) => {
+  if (!reactions || Object.keys(reactions).length === 0) return null;
+
+  return (
+    <div className={cn("flex flex-wrap gap-1 mt-1.5", isMe ? "justify-end" : "justify-start")}>
+      <AnimatePresence>
+        {Object.entries(reactions).map(([emoji, userIds]) => {
+          if (!userIds || userIds.length === 0) return null;
+          const hasReacted = userIds.includes(currentUserId);
+          
+          // Map user IDs to names for tooltip
+          const names = userIds.map(uid => {
+            const u = users.find(user => user.uid === uid);
+            return u?.displayName || u?.email?.split('@')[0] || 'Someone';
+          }).join(', ');
+
+          return (
+            <motion.button
+              key={emoji}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => onReact(emoji)}
+              title={names}
+              className={cn(
+                "flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[11px] font-black transition-all duration-300",
+                hasReacted 
+                  ? "bg-orange-50 border-orange-200 text-orange-600 shadow-sm" 
+                  : "bg-white border-zinc-200 text-zinc-500 hover:border-zinc-300"
+              )}
+            >
+              <span>{emoji}</span>
+              <span>{userIds.length}</span>
+            </motion.button>
+          );
+        })}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 export default function MessageList() {
   const dispatch = useAppDispatch();
-  const { messages, loading } = useAppSelector((state) => state.chat);
+  const { messages, loading, users } = useAppSelector((state) => state.chat);
   const { user: currentUser } = useAppSelector((state) => state.auth);
+  const { toggleReaction } = useChat();
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -120,6 +201,7 @@ export default function MessageList() {
                     <div className="relative">
                       {/* Message Hover Actions */}
                       <div className="absolute -top-4 right-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white border border-zinc-200 rounded-lg p-1 flex items-center shadow-lg transform -translate-y-2 group-hover:translate-y-0 duration-200 z-10">
+                        <QuickReact onReact={(emoji) => message.id && toggleReaction(message.id, emoji, message.reactions)} />
                         <button 
                           onClick={() => message.id && dispatch(openThread(message.id))}
                           className="p-1 px-2 hover:bg-zinc-100 rounded text-xs font-bold text-zinc-500 flex items-center gap-1.5"
@@ -140,6 +222,14 @@ export default function MessageList() {
                       </div>
 
                       <AttachmentGrid attachments={message.attachments || []} isMe={true} />
+                      
+                      <ReactionPills 
+                        reactions={message.reactions} 
+                        onReact={(emoji) => message.id && toggleReaction(message.id, emoji, message.reactions)}
+                        currentUserId={currentUser?.uid || ''}
+                        isMe={true}
+                        users={users}
+                      />
 
                       {/* Reply Count link */}
                       {message.threadCount && message.threadCount > 0 && (
@@ -177,6 +267,7 @@ export default function MessageList() {
                    <div className="relative">
                       {/* Message Hover Actions */}
                       <div className="absolute -top-4 left-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white border border-zinc-200 rounded-lg p-1 flex items-center shadow-lg transform -translate-y-2 group-hover:translate-y-0 duration-200 z-10">
+                        <QuickReact onReact={(emoji) => message.id && toggleReaction(message.id, emoji, message.reactions)} />
                         <button 
                           onClick={() => message.id && dispatch(openThread(message.id))}
                           className="p-1 px-2 hover:bg-zinc-100 rounded text-xs font-bold text-zinc-500 flex items-center gap-1.5"
@@ -192,6 +283,14 @@ export default function MessageList() {
                       </div>
 
                       <AttachmentGrid attachments={message.attachments || []} isMe={false} />
+
+                      <ReactionPills 
+                        reactions={message.reactions} 
+                        onReact={(emoji) => message.id && toggleReaction(message.id, emoji, message.reactions)}
+                        currentUserId={currentUser?.uid || ''}
+                        isMe={false}
+                        users={users}
+                      />
 
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-[10px] text-gray-400 font-bold">

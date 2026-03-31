@@ -9,6 +9,7 @@ import {
   Smile,
   AtSign,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useChat } from "@/app/hooks/useChat";
 import { storage } from "@/app/lib/firebase";
 import { 
@@ -28,7 +29,9 @@ export default function MessageInput() {
   const [mentionSearch, setMentionSearch] = useState("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, number>>({});
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const emojiPickerRef = React.useRef<HTMLDivElement>(null);
 
   const { activeChannelId } = useAppSelector((state) => state.ui);
   const { channels, users } = useAppSelector((state) => state.chat);
@@ -123,6 +126,11 @@ export default function MessageInput() {
     setAttachments(prev => prev.filter(a => a.id !== id));
   };
 
+  const addEmoji = (emoji: string) => {
+    setContent(prev => prev + emoji);
+    setIsEmojiPickerOpen(false);
+  };
+
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setContent(value);
@@ -182,6 +190,16 @@ export default function MessageInput() {
       clearTimeout(timeout);
     };
   }, [content, activeChannelId, user]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setIsEmojiPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="p-2">
@@ -262,14 +280,45 @@ export default function MessageInput() {
         <div className="flex items-center justify-between px-3 py-2 border-t border-zinc-100 bg-zinc-50">
 
           <div className="flex items-center gap-1">
-            <ToolbarButton 
+            {/* File Upload Hidden as per request */}
+            {/* <ToolbarButton 
               icon={<Paperclip size={18} />} 
               onClick={() => fileInputRef.current?.click()}
             />
-            <div className="w-px h-4 bg-zinc-200 mx-1" />
+            <div className="w-px h-4 bg-zinc-200 mx-1" /> */}
             <ToolbarButton icon={<Bold size={16} />} />
             <ToolbarButton icon={<Italic size={16} />} />
-            <ToolbarButton icon={<Smile size={18} />} />
+            <div className="relative" ref={emojiPickerRef}>
+              <ToolbarButton 
+                icon={<Smile size={18} className={cn(isEmojiPickerOpen && "text-orange-500")} />} 
+                onClick={() => setIsEmojiPickerOpen(!isEmojiPickerOpen)}
+              />
+              <AnimatePresence>
+                {isEmojiPickerOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute bottom-full left-0 mb-2 p-2 bg-white border border-zinc-200 rounded-2xl shadow-2xl z-50 w-64"
+                  >
+                    <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 px-1">
+                      Quick Emojis
+                    </div>
+                    <div className="grid grid-cols-8 gap-1">
+                      {['😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🤩','🥳','😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯','😳','🥵','🥶','😱','😨','😰','😥','😓','🤗','🤔','🤭','🤫','🤥','😶','😐','😑','😬','🙄','😯','😦','😧','😮','😲','🥱','😴','🤤','😪','😵','🤐','🥴','🤢','🤮','🤧','😷','🤒','🤕'].map(emoji => (
+                        <button
+                          key={emoji}
+                          onClick={() => addEmoji(emoji)}
+                          className="w-7 h-7 flex items-center justify-center hover:bg-zinc-100 rounded-lg transition-colors text-base"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">

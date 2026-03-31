@@ -224,5 +224,34 @@ export const useChat = () => {
     }
   };
 
-  return { sendMessage };
+  const toggleReaction = async (messageId: string, emoji: string, currentReactions: Record<string, string[]> = {}) => {
+    if (!user || !activeChannelId) return;
+
+    const hasReacted = currentReactions[emoji]?.includes(user.uid);
+    const action = hasReacted ? 'REMOVE' : 'ADD';
+
+    try {
+      const response = await fetch('/api/messages/react', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messageId,
+          emoji,
+          userId: user.uid,
+          workspaceId: activeWorkspaceId,
+          channelId: activeChannelId,
+          action
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update reaction');
+      }
+    } catch (error: unknown) {
+      console.error('Reaction error', error);
+      toast.error('Failed to update reaction');
+    }
+  };
+
+  return { sendMessage, toggleReaction };
 };

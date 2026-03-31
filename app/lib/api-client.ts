@@ -17,6 +17,17 @@ async function request<T>(
     },
   };
 
+  // Add Auth Token if user is logged in
+  try {
+    const { auth } = await import('./firebase');
+    const token = await auth.currentUser?.getIdToken();
+    if (token) {
+      (options.headers as any)['Authorization'] = `Bearer ${token}`;
+    }
+  } catch (error) {
+    console.error('Failed to get auth token:', error);
+  }
+
   if (body) {
     options.body = JSON.stringify(body);
   }

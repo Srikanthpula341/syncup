@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
+import { getAuthSession } from '@/app/lib/auth-util';
 
 export async function PATCH(req: Request) {
   try {
@@ -15,6 +16,12 @@ export async function PATCH(req: Request) {
 
     if (!taskId || !userId || !newColumnId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Security: Verify authentication
+    const authUid = await getAuthSession();
+    if (!authUid || authUid !== userId) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or spoofed' }, { status: 401 });
     }
 
     // Update task in Firestore

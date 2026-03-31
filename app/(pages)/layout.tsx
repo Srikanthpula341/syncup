@@ -7,6 +7,8 @@ import { useNotifications } from '@/app/hooks/useNotifications';
 import WorkspaceSettingsModal from '@/app/components/workspaces/WorkspaceSettingsModal';
 import { usePersistence } from '@/app/hooks/usePersistence';
 import MobileNav from '@/app/components/navigation/MobileNav';
+import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 export default function PagesLayout({
   children,
@@ -15,7 +17,8 @@ export default function PagesLayout({
 }) {
   useNotifications(); // Phase 9: Global Notifications
   usePersistence(); // Phase 14: Session Persistence
-  
+  const pathname = usePathname();
+
   return (
     <PresenceProvider>
       <div className="flex h-screen overflow-hidden bg-white">
@@ -26,7 +29,18 @@ export default function PagesLayout({
 
         {/* Main Content */}
         <main className="flex-1 overflow-hidden bg-white relative mb-8 lg:pb-0">
-          {children}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="h-full"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
 

@@ -23,6 +23,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }
 
 /* Hide scrollbar but keep scroll */
@@ -42,4 +43,44 @@ body {
 
 .animate-bounce-slow {
   animation: bounce-slow 4s ease-in-out infinite;
+}
+
+@layer utilities {
+  .shadow-halodek {
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05), 0 10px 20px -10px rgba(0, 0, 0, 0.02);
+  }
+  
+  .rounded-halodek {
+    border-radius: 32px;
+  }
+  
+  .border-halodek {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .bg-halodek-gradient {
+    background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.05), transparent 40%),
+                radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent 40%);
+  }
+
+  /* Custom Transitions */
+  .transition-premium {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+}
+
+/* Global Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mobile Safe Areas */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pb-safe-offset-4 {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
 }

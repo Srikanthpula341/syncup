@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SyncUp 🚀
 
-## Getting Started
+SyncUp is a premium, real-time collaboration platform designed for high-performance teams. Built with **Next.js 16**, **Firebase**, and **Redux Toolkit**, it combines the best of Slack's threaded conversations with Trello's intuitive Kanban task management—all under a sleek, Halodek-inspired modern UI.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Core Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 💬 Real-time Threaded Chat
+- **Threaded Conversations**: Keep discussions focused and organized.
+- **Message Status**: Real-time read receipts and delivery indicators.
+- **Presence Tracking**: See who's online with 10M-heartbeat accuracy.
+- **Multi-channel Support**: Public and private channels for every workspace.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 📋 Kanban Task Management
+- **Interactive Board**: Drag-and-drop tasks across custom columns (`To-Do`, `In Progress`, `Review`, `Done`).
+- **Optimistic UI**: Instant updates for a lag-free productivity experience.
+- **Task Metadata**: Manage priorities, due dates, and assignees with ease.
+- **Direct Navigation**: Link activities directly to tasks for rapid context switching.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📈 Activity Timeline
+- **Workspace Pulse**: A live feed of every significant event (task moves, new messages, workspace changes).
+- **Human-Readable Logs**: Detailed event descriptions including task names and user actions.
+- **Instant Sync**: Powered by Firestore listeners for a truly live experience.
 
-## Learn More
+### 🏢 Multi-tenant Workspaces
+- **Isolated Environments**: Switch between independent workspaces without leaving the app.
+- **Workspace Hub**: A central management page to join or create new collaboration hubs.
+- **Admin Settings**: Fine-grained control over workspace names and configurations.
 
-To learn more about Next.js, take a look at the following resources:
+### 🛡️ Security Implementation
+- **Token-based API Protection**: All mission-critical API routes (Tasks, Messages) require a valid **Firebase ID Token** in the `Authorization` header.
+- **Server-side Verification**: Using the `firebase-admin` SDK, every request's identity is verified on the server before any database operations occur.
+- **Identity Correlation**: The system ensures that the verified user UID from the token matches the `creatorId` or `userId` in the request body, preventing ID spoofing.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Technology Stack
 
-## Deploy on Vercel
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | [Next.js 15](https://nextjs.org/) (App Router & Turbopack) |
+| **State Management** | [Redux Toolkit](https://redux-toolkit.js.org/) |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) & [Framer Motion](https://www.framer.com/motion/) |
+| **Database** | [Firebase Firestore](https://firebase.google.com/docs/firestore) |
+| **Authentication** | [Firebase Auth](https://firebase.google.com/docs/auth) |
+| **Icons** | [Lucide React](https://lucide.dev/) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚀 Getting Started
+
+### 1. Prerequisites
+- Node.js (v20+)
+- A Firebase Project (Firestore, Auth, and Admin SDK enabled)
+
+### 2. Setup
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Srikanthpula341/syncup.git
+   ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Configure Environment**:
+   Create a `.env.local` file with your Firebase configuration.
+
+4. **Launch the platform**:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 👔 Design System: "Halodek"
+SyncUp follows a custom design philosophy called **Halodek**, which prioritizes:
+- **Clean Aesthetic**: Off-white backgrounds with vibrant orange accents (`#F97316`).
+- **Soft Geometry**: Large border-radii (`32px`) and subtle drop shadows.
+- **Micro-Animations**: Smooth page transitions and interactive hover states.
+
+---
+
+### 👨‍💻 Developed By
+**Pula Srikanth** - *Advancing collaboration through modern architecture.*

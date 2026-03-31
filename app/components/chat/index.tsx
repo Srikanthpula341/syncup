@@ -5,9 +5,10 @@ import ChatList from './ChatList'
 import MessageInput from './MessageInput'
 import MessageList from './MessageList'
 import ThreadSidebar from './ThreadSidebar'
+import WelcomeDashboard from './WelcomeDashboard'
 
 const ChatComponent = () => {
-  const { isThreadOpen } = useAppSelector((state) => state.ui);
+  const { isThreadOpen, activeChannelId } = useAppSelector((state) => state.ui);
 
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100 font-sans">
@@ -18,9 +19,15 @@ const ChatComponent = () => {
 
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 flex flex-col min-w-0 bg-white">
-          <ChatHeader />
-          <MessageList />
-          <MessageInput />
+          {!activeChannelId ? (
+            <WelcomeDashboard />
+          ) : (
+            <>
+              <ChatHeader />
+              <MessageList />
+              <MessageInput />
+            </>
+          )}
         </div>
 
         {/* Thread Sidebar */}

@@ -16,7 +16,7 @@ if (!admin.apps.length) {
           privateKey: privateKey.replace(/\\n/g, '\n'),
         }),
       });
-      console.log('Firebase Admin Initialized with Service Account');
+      console.log('Firebase Admin Initialized with Service Account: ' + projectId);
     } else if (projectId) {
       // Initialize with Project ID as fallback for local dev or default credentials
       admin.initializeApp({ projectId });

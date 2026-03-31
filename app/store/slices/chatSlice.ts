@@ -1,5 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface Attachment {
+  id: string;
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+}
+
 export interface Message {
   id: string;
   userId: string;
@@ -7,6 +15,7 @@ export interface Message {
   userAvatar: string;
   content: string;
   timestamp: number;
+  attachments?: Attachment[];
   reactions?: Record<string, string[]>;
   threadCount?: number;
   isPinned?: boolean;
@@ -24,6 +33,7 @@ export interface Workspace {
   id: string;
   name: string;
   avatar: string;
+  ownerId: string;
 }
 
 export interface AppUser {

@@ -3,6 +3,8 @@
 import { Video, Phone, Sparkles, Info } from "lucide-react";
 import { useAppSelector } from "@/app/store/hooks";
 import { useUserStatus } from "@/app/hooks/useUserStatus";
+import NotificationCenter from "../notifications/NotificationCenter";
+import Image from "next/image";
 
 export default function ChatHeader() {
   const { activeChannelId } = useAppSelector((state) => state.ui);
@@ -38,12 +40,14 @@ export default function ChatHeader() {
 
       {/* Left */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-orange-300 flex items-center justify-center font-bold text-white overflow-hidden">
+        <div className="w-10 h-10 rounded-full bg-orange-300 flex items-center justify-center font-bold text-white overflow-hidden relative">
           {isDM && recipient?.photoURL ? (
-            <img
+            <Image
               src={recipient.photoURL}
               alt="user avatar"
-              className="w-full h-full object-cover"
+              fill
+              sizes="40px"
+              className="object-cover"
             />
           ) : (
             avatarLetter
@@ -66,11 +70,15 @@ export default function ChatHeader() {
       </div>
 
       {/* Right */}
-      <div className="flex gap-4 text-gray-600">
-        <Video className="cursor-pointer hover:text-orange-500" size={18} />
-        <Phone className="cursor-pointer hover:text-orange-500" size={18} />
-        <Sparkles className="cursor-pointer hover:text-orange-500" size={18} />
-        <Info className="cursor-pointer hover:text-orange-500" size={18} />
+      <div className="flex items-center gap-2 text-zinc-600">
+        <NotificationCenter />
+        <div className="w-px h-6 bg-zinc-200 mx-1 hidden sm:block" />
+        <div className="flex items-center gap-4">
+          <Video className="cursor-pointer hover:text-orange-500 transition-colors" size={18} />
+          <Phone className="cursor-pointer hover:text-orange-500 transition-colors" size={18} />
+          <Sparkles className="cursor-pointer hover:text-orange-500 transition-colors" size={18} />
+          <Info className="cursor-pointer hover:text-orange-500 transition-colors" size={18} />
+        </div>
       </div>
     </div>
   );

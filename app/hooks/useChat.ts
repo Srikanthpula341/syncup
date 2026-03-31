@@ -8,8 +8,6 @@ import {
   orderBy, 
   limit, 
   doc,
-  setDoc,
-  updateDoc,
 } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
@@ -25,6 +23,7 @@ import {
   Channel,
   Message,
   AppUser,
+  Attachment,
   setUnreadCounts
 } from '@/app/store/slices/chatSlice';
 
@@ -79,7 +78,11 @@ export const useChat = () => {
     const q = query(collection(db, 'workspaces'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Workspace[];
+        const data = snapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data(),
+          ownerId: doc.data().ownerId || '' 
+        })) as Workspace[];
         dispatch(setWorkspaces(data));
       },
       (error) => {
@@ -138,13 +141,23 @@ export const useChat = () => {
         })) as Message[];
         dispatch(setMessages(data));
 
-        // Read Receipts engine: Mark incoming messages as read
-        snapshot.docs.forEach((document) => {
-          const msg = document.data() as Message;
-          if (msg.userId !== user.uid && msg.status !== 'read') {
-            updateDoc(document.ref, { status: 'read' }).catch(() => {});
-          }
+        // Read Receipts engine: Trigger API if unread messages exist
+        const hasUnread = snapshot.docs.some(d => {
+          const m = d.data() as Message;
+          return m.userId !== user.uid && m.status !== 'read';
         });
+
+        if (hasUnread) {
+          fetch('/api/messages/mark-read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              channelId: activeChannelId, 
+              userId: user.uid,
+              workspaceId: activeWorkspaceId 
+            }),
+          }).catch(console.error);
+        }
       },
       (error) => {
         if (error.code === 'permission-denied' && !user) {
@@ -175,13 +188,19 @@ export const useChat = () => {
   // Reset unread count when opening a channel
   useEffect(() => {
     if (!activeChannelId || !user) return;
-    setDoc(doc(db, 'unread_counts', user.uid), {
-      [activeChannelId]: 0
-    }, { merge: true }).catch(() => {});
-  }, [activeChannelId, user]);
+    fetch('/api/messages/mark-read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        channelId: activeChannelId, 
+        userId: user.uid,
+        workspaceId: activeWorkspaceId 
+      }),
+    }).catch(console.error);
+  }, [activeChannelId, user, activeWorkspaceId]);
 
-  const sendMessage = async (content: string) => {
-    if (!user || !activeChannelId || !content.trim()) return;
+  const sendMessage = async (content: string, attachments: Attachment[] = []) => {
+    if (!user || !activeChannelId || (!content.trim() && attachments.length === 0)) return;
 
     try {
       const response = await fetch('/api/messages/send', {
@@ -189,6 +208,7 @@ export const useChat = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: content.trim(),
+          attachments,
           userId: user.uid,
           userName: user.displayName || user.email,
           userAvatar: user.photoURL,
@@ -208,5 +228,34 @@ export const useChat = () => {
     }
   };
 
-  return { sendMessage };
+  const toggleReaction = async (messageId: string, emoji: string, currentReactions: Record<string, string[]> = {}) => {
+    if (!user || !activeChannelId) return;
+
+    const hasReacted = currentReactions[emoji]?.includes(user.uid);
+    const action = hasReacted ? 'REMOVE' : 'ADD';
+
+    try {
+      const response = await fetch('/api/messages/react', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messageId,
+          emoji,
+          userId: user.uid,
+          workspaceId: activeWorkspaceId,
+          channelId: activeChannelId,
+          action
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update reaction');
+      }
+    } catch (error: unknown) {
+      console.error('Reaction error', error);
+      toast.error('Failed to update reaction');
+    }
+  };
+
+  return { sendMessage, toggleReaction };
 };

@@ -1,17 +1,25 @@
+"use client";
+
 import React from 'react'
 import Sidebar from './Sidebar';
 import PresenceProvider from '@/app/components/providers/PresenceProvider';
+import { useNotifications } from '@/app/hooks/useNotifications';
+import WorkspaceSettingsModal from '@/app/components/workspaces/WorkspaceSettingsModal';
+import { usePersistence } from '@/app/hooks/usePersistence';
 
 export default function PagesLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  useNotifications(); // Phase 9: Global Notifications
+  usePersistence(); // Phase 14: Session Persistence
+  
   return (
     <PresenceProvider>
       <div className="flex h-screen overflow-hidden bg-white">
         {/* Sidebar */}
-        <aside className="w-20 lg:w-24 flex-shrink-0 border-r border-zinc-100 bg-white">
+        <aside className="w-20 lg:w-24 shrink-0 border-r border-zinc-100 bg-white">
           <Sidebar />
         </aside>
 
@@ -20,6 +28,8 @@ export default function PagesLayout({
           {children}
         </main>
       </div>
+
+      <WorkspaceSettingsModal />
     </PresenceProvider>
   );
 }

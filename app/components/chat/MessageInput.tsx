@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAppSelector } from "@/app/store/hooks";
 import {
   Bold,
@@ -24,6 +24,8 @@ import { X, FileIcon, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import { api } from "@/app/lib/api-client";
+import { API_CONFIG } from "@/app/lib/api-constants";
+import { debounce } from "@/app/lib/api-utils";
 
 export default function MessageInput() {
   const [content, setContent] = useState("");
@@ -158,10 +160,16 @@ export default function MessageInput() {
     setIsMentioning(false);
   };
 
+  // Typing Status Logic (Modular & Debounced)
+  const typingRef = useRef({
+    startDebounced: null as ReturnType<typeof debounce> | null,
+    stopDebounced: null as ReturnType<typeof debounce> | null,
+  });
+
   useEffect(() => {
     if (!activeChannelId || !user) return;
 
-    const updateTypingStatus = async (isTyping: boolean) => {
+    const updateStatus = async (isTyping: boolean) => {
       try {
         await api.chat.typing({
           channelId: activeChannelId,
@@ -173,21 +181,25 @@ export default function MessageInput() {
       }
     };
 
-    if (!content.trim()) {
-      updateTypingStatus(false);
-      return;
-    }
-
-    updateTypingStatus(true);
-
-    const timeout = setTimeout(() => {
-      updateTypingStatus(false);
-    }, 3000);
+    // Initialize debounced functions once per channel/user combo
+    typingRef.current.startDebounced = debounce(() => updateStatus(true), API_CONFIG.TYPING_DEBOUNCE, true);
+    typingRef.current.stopDebounced = debounce(() => updateStatus(false), 3000);
 
     return () => {
-      clearTimeout(timeout);
+      // Clear on cleanup (stopping status)
+      updateStatus(false).catch(console.error);
     };
-  }, [content, activeChannelId, user]);
+  }, [activeChannelId, user]);
+
+  useEffect(() => {
+    if (!content.trim() || !typingRef.current.startDebounced || !typingRef.current.stopDebounced) return;
+
+    // 1. Trigger "Started Typing" (Leading edge, immediate, then wait 6s)
+    typingRef.current.startDebounced();
+
+    // 2. Trigger "Stopped Typing" (Trailing edge, 3s after last keystroke)
+    typingRef.current.stopDebounced();
+  }, [content]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

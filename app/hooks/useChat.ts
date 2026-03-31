@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { 
   collection, 
   query, 
@@ -27,12 +27,19 @@ import {
   setUnreadCounts
 } from '@/app/store/slices/chatSlice';
 import { api } from '@/app/lib/api-client';
+import { debounce } from '@/app/lib/api-utils';
+import { API_CONFIG } from '@/app/lib/api-constants';
 
 export const useChat = () => {
   const dispatch = useAppDispatch();
   const { activeWorkspaceId, activeChannelId } = useAppSelector((state) => state.ui);
   const { workspaces, channels } = useAppSelector((state) => state.chat);
   const { user } = useAppSelector((state) => state.auth);
+  
+  const debouncedMarkRead = useMemo(() => 
+    debounce(api.messages.markRead, API_CONFIG.MARK_READ_DEBOUNCE),
+    []
+  );
 
   // 0. Global User Sync
   useEffect(() => {
@@ -149,11 +156,11 @@ export const useChat = () => {
         });
 
         if (hasUnread) {
-          api.messages.markRead({ 
+          debouncedMarkRead({ 
             channelId: activeChannelId, 
             userId: user.uid,
             workspaceId: activeWorkspaceId 
-          }).catch(console.error);
+          });
         }
       },
       (error) => {
@@ -167,7 +174,7 @@ export const useChat = () => {
       }
     );
     return () => unsubscribe();
-  }, [activeWorkspaceId, activeChannelId, dispatch, user]);
+  }, [activeWorkspaceId, activeChannelId, dispatch, user, debouncedMarkRead]);
 
   // 4. Seperate Auto-Selection Logic
   useEffect(() => {
@@ -185,12 +192,12 @@ export const useChat = () => {
   // Reset unread count when opening a channel
   useEffect(() => {
     if (!activeChannelId || !user) return;
-    api.messages.markRead({ 
+    debouncedMarkRead({ 
       channelId: activeChannelId, 
       userId: user.uid,
       workspaceId: activeWorkspaceId 
-    }).catch(console.error);
-  }, [activeChannelId, user, activeWorkspaceId]);
+    });
+  }, [activeChannelId, user, activeWorkspaceId, debouncedMarkRead]);
 
   const sendMessage = async (content: string, attachments: Attachment[] = []) => {
     if (!user || !activeChannelId || (!content.trim() && attachments.length === 0)) return;

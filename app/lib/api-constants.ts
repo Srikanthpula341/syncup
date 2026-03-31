@@ -22,3 +22,8 @@ export const API_ROUTES = {
     TYPING: '/api/chat/typing',
   },
 } as const;
+
+export const API_CONFIG = {
+  TYPING_DEBOUNCE: 6000,
+  MARK_READ_DEBOUNCE: 2000,
+} as const;

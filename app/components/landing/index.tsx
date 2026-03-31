@@ -48,7 +48,7 @@ const LandingComponent = () => {
           {/* Memojis */}
           <div className="absolute top-10 right-20 w-48 h-48 animate-bounce-slow">
              <div className="relative w-full h-full">
-                <Image src="/landing/hero_memoji_female_heart.png" alt="Memoji" fill className="object-contain" />
+                <Image src="/landing/hero_memoji_female_heart.png" alt="Memoji" fill sizes="192px" className="object-contain" />
                 <div className="absolute -top-4 -right-4 bg-white p-3 rounded-2xl shadow-lg border border-gray-100 rotate-12">
                    <span className="text-2xl">❤️</span>
                 </div>
@@ -57,13 +57,13 @@ const LandingComponent = () => {
 
           <div className="absolute top-1/2 -translate-y-1/2 right-64 w-40 h-40">
              <div className="relative w-full h-full">
-                <Image src="/landing/hero_memoji_male.png" alt="Memoji" fill className="object-contain" />
+                <Image src="/landing/hero_memoji_male.png" alt="Memoji" fill sizes="160px" className="object-contain" />
              </div>
           </div>
 
           <div className="absolute bottom-10 right-10 w-56 h-56">
              <div className="relative w-full h-full">
-                <Image src="/landing/hero_memoji_female_wink.png" alt="Memoji" fill className="object-contain" />
+                <Image src="/landing/hero_memoji_female_wink.png" alt="Memoji" fill sizes="224px" className="object-contain" />
                 <div className="absolute -left-10 -top-10 bg-orange-500 text-white p-4 rounded-2xl shadow-2xl font-bold">
                    Coffee shop at 5?
                 </div>
@@ -151,15 +151,6 @@ const LandingComponent = () => {
         </div>
       </section>
 
-      <style jsx global>{`
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
-        .animate-bounce-slow {
-          animation: bounce-slow 4s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   )
 }

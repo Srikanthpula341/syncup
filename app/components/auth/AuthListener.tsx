@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '@/app/lib/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { setAuthUser, setAuthLoading } from '@/app/store/slices/authSlice';
 import { useRouter, usePathname } from 'next/navigation';
@@ -23,33 +23,54 @@ export default function AuthListener() {
   useEffect(() => {
     dispatch(setAuthLoading());
     
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeDoc: (() => void) | undefined;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userData = {
+        // 1. Base User Data
+        const baseUserData = {
           uid: user.uid,
           email: user.email,
           displayName: user.displayName,
           photoURL: user.photoURL,
         };
 
-        dispatch(setAuthUser(userData));
+        // 2. Sync to Firestore (Merge)
+        const userDocRef = doc(db, 'users', user.uid);
+        await setDoc(userDocRef, {
+          ...baseUserData,
+          lastSeen: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
 
-        // Sync to Firestore Users Collection
-        try {
-          await setDoc(doc(db, 'users', user.uid), {
-            ...userData,
-            lastSeen: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          }, { merge: true });
-        } catch (error) {
-          console.error("Error syncing user to Firestore:", error);
-        }
+        // 3. Listen for Role & Metadata Updates
+        if (unsubscribeDoc) unsubscribeDoc();
+        unsubscribeDoc = onSnapshot(userDocRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const fullData = docSnap.data();
+            dispatch(setAuthUser({
+              ...baseUserData,
+              role: fullData.role || null,
+            }));
+          } else {
+            dispatch(setAuthUser(baseUserData));
+          }
+        }, (error) => {
+          console.error("User doc sync error:", error);
+          dispatch(setAuthUser(baseUserData));
+        });
+
       } else {
+        // Clean up and clear auth
+        if (unsubscribeDoc) unsubscribeDoc();
         dispatch(setAuthUser(null));
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeDoc) unsubscribeDoc();
+    };
   }, [dispatch]);
 
   // Global Routing Logic

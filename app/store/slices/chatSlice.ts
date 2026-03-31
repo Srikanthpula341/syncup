@@ -48,6 +48,7 @@ export interface AppUser {
     nanoseconds: number;
   } | null;
   lastDMAt?: number;
+  role?: string;
 }
 
 interface ChatState {

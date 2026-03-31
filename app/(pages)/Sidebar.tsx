@@ -7,11 +7,12 @@ import {
   Activity,
   Building2,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
 import { setSettingsModalOpen } from "@/app/store/slices/uiSlice";
-import { ROUTES } from "@/app/lib/route-constants";
+import { ROUTES, USER_ROLES } from "@/app/lib/route-constants";
 
 const menu = [
   { name: "Chat", icon: MessageCircle, path: ROUTES.CHAT },
@@ -19,6 +20,10 @@ const menu = [
   { name: "Activity", icon: Activity, path: ROUTES.ACTIVITY },
   { name: "Workspace", icon: Building2, path: ROUTES.WORKSPACES },
   { name: "Profile", icon: Users, path: ROUTES.PROFILE },
+];
+
+const adminMenu = [
+  { name: "Admin", icon: ShieldCheck, path: ROUTES.ADMIN },
 ];
 
 export default function Sidebar() {
@@ -71,6 +76,41 @@ export default function Sidebar() {
                   isActive
                     ? "text-orange-500 font-medium"
                     : "text-zinc-500 group-hover:text-orange-500"
+                }`}
+              >
+                {item.name}
+              </span>
+            </div>
+          );
+        })}
+
+        {/* Admin Link (Conditional) */}
+        {user?.role === USER_ROLES.SUPER_ADMIN && adminMenu.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname.startsWith(item.path);
+
+          return (
+            <div
+              key={item.name}
+              onClick={() => router.push(item.path)}
+              className="flex flex-col items-center gap-1 cursor-pointer group"
+            >
+              <div
+                className={`p-2 rounded-xl transition-all duration-200
+                  ${
+                    isActive
+                      ? "bg-indigo-100 text-indigo-600"
+                      : "text-zinc-500 group-hover:text-indigo-600 group-hover:bg-indigo-50"
+                  }`}
+              >
+                <Icon size={18} />
+              </div>
+
+              <span
+                className={`text-[11px] ${
+                  isActive
+                    ? "text-indigo-600 font-medium"
+                    : "text-zinc-500 group-hover:text-indigo-600"
                 }`}
               >
                 {item.name}

@@ -124,7 +124,7 @@ export default function BoardContainer() {
       </div>
 
       {/* Board Scroll Area */}
-      <div className="flex-1 overflow-y-auto lg:overflow-x-auto p-3 lg:p-6bg-zinc-50/30 snap-x snap-mandatory scroll-smooth no-scrollbar">
+      <div className="flex-1 overflow-y-auto lg:overflow-x-auto p-3 lg:p-6 bg-zinc-50/30 snap-x snap-mandatory scroll-smooth no-scrollbar">
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 h-full min-h-[400px]">
             {COLUMNS.map(column => (

@@ -87,7 +87,7 @@ const ChatList = () => {
                <ChannelItem 
                   name="general"
                   isActive={activeChannelId === 'general'}
-                  unreadCount={unreadCounts['general'] || 0}
+                  unreadCount={(unreadCounts['general'] as number) || 0}
                   onClick={() => dispatch(setActiveChannel('general'))}
                />
             )}

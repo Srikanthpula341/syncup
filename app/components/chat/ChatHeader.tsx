@@ -1,7 +1,8 @@
 "use client";
 
-import { Video, Phone, Sparkles, Info } from "lucide-react";
-import { useAppSelector } from "@/app/store/hooks";
+import { Video, Phone, Sparkles, Info, ChevronLeft } from "lucide-react";
+import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
+import { setActiveChannel } from "@/app/store/slices/uiSlice";
 import { useUserStatus } from "@/app/hooks/useUserStatus";
 import NotificationCenter from "../notifications/NotificationCenter";
 import Image from "next/image";
@@ -10,6 +11,7 @@ export default function ChatHeader() {
   const { activeChannelId } = useAppSelector((state) => state.ui);
   const { channels, users } = useAppSelector((state) => state.chat);
   const { user: currentUser } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   const isDM = activeChannelId?.startsWith("dm-");
 
@@ -36,10 +38,18 @@ export default function ChatHeader() {
   const avatarLetter = name?.charAt(0)?.toUpperCase() || "U";
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-zinc-200">
+    <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-zinc-200 shrink-0">
 
       {/* Left */}
       <div className="flex items-center gap-3">
+        {/* Mobile Back Button */}
+        <button 
+          onClick={() => dispatch(setActiveChannel(null))}
+          className="lg:hidden p-2 -ml-2 rounded-full hover:bg-zinc-100 transition-colors text-zinc-600"
+        >
+          <ChevronLeft size={24} />
+        </button>
+
         <div className="w-10 h-10 rounded-full bg-orange-300 flex items-center justify-center font-bold text-white overflow-hidden relative">
           {isDM && recipient?.photoURL ? (
             <Image
@@ -74,9 +84,9 @@ export default function ChatHeader() {
         <NotificationCenter />
         <div className="w-px h-6 bg-zinc-200 mx-1 hidden sm:block" />
         <div className="flex items-center gap-4">
-          <Video className="cursor-pointer hover:text-orange-500 transition-colors" size={18} />
-          <Phone className="cursor-pointer hover:text-orange-500 transition-colors" size={18} />
-          <Sparkles className="cursor-pointer hover:text-orange-500 transition-colors" size={18} />
+          <Video className="cursor-pointer hover:text-orange-500 transition-colors hidden sm:block" size={18} />
+          <Phone className="cursor-pointer hover:text-orange-500 transition-colors hidden sm:block" size={18} />
+          <Sparkles className="cursor-pointer hover:text-orange-500 transition-colors hidden sm:block" size={18} />
           <Info className="cursor-pointer hover:text-orange-500 transition-colors" size={18} />
         </div>
       </div>

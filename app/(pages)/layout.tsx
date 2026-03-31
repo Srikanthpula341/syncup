@@ -6,6 +6,7 @@ import PresenceProvider from '@/app/components/providers/PresenceProvider';
 import { useNotifications } from '@/app/hooks/useNotifications';
 import WorkspaceSettingsModal from '@/app/components/workspaces/WorkspaceSettingsModal';
 import { usePersistence } from '@/app/hooks/usePersistence';
+import MobileNav from '@/app/components/navigation/MobileNav';
 
 export default function PagesLayout({
   children,
@@ -19,16 +20,17 @@ export default function PagesLayout({
     <PresenceProvider>
       <div className="flex h-screen overflow-hidden bg-white">
         {/* Sidebar */}
-        <aside className="w-20 lg:w-24 shrink-0 border-r border-zinc-100 bg-white">
+        <aside className="hidden lg:block w-20 lg:w-24 shrink-0 border-r border-zinc-100 bg-white">
           <Sidebar />
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto bg-white relative">
+        <main className="flex-1 overflow-hidden bg-white relative mb-8 lg:pb-0">
           {children}
         </main>
       </div>
 
+      <MobileNav />
       <WorkspaceSettingsModal />
     </PresenceProvider>
   );

@@ -41,10 +41,10 @@ const uiSlice = createSlice({
       state.isThreadOpen = false;
       state.activeThreadMessageId = null;
     },
-    setActiveWorkspace: (state, action: PayloadAction<string>) => {
+    setActiveWorkspace: (state, action: PayloadAction<string | null>) => {
       state.activeWorkspaceId = action.payload;
     },
-    setActiveChannel: (state, action: PayloadAction<string>) => {
+    setActiveChannel: (state, action: PayloadAction<string | null>) => {
       state.activeChannelId = action.payload;
       state.isMobileMenuOpen = false; // Auto-close on select
     },

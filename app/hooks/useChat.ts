@@ -184,6 +184,9 @@ export const useChat = () => {
   }, [workspaces, activeWorkspaceId, dispatch]);
 
   useEffect(() => {
+    // Only auto-select on desktop (lg: 1024px)
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) return;
+
     if (channels.length > 0 && !activeChannelId) {
       dispatch(setActiveChannel(channels[0].id));
     }

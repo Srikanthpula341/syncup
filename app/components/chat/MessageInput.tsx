@@ -212,9 +212,8 @@ export default function MessageInput() {
   }, []);
 
   return (
-    <div className="p-2">
+    <div className="p-2 mb-16 lg:mb-8">
       <div className="relative rounded-2xl bg-white border border-zinc-200 shadow-sm overflow-hidden">
-        
         {/* Attachment Previews */}
         {(attachments.length > 0 || Object.keys(uploadingFiles).length > 0) && (
           <div className="p-3 flex flex-wrap gap-2 border-b border-zinc-100 bg-zinc-50/50">

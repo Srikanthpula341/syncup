@@ -1,5 +1,4 @@
 import type { NextConfig } from 'next';
-import securityProxy from './proxy';
 
 const nextConfig: NextConfig = {
   devIndicators: false,
@@ -15,4 +14,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default securityProxy(nextConfig);
+export default nextConfig;

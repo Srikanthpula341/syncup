@@ -78,13 +78,12 @@ export default function AuthListener() {
     if (status === 'loading') return;
 
     const isAuthPage = pathname === ROUTES.AUTH;
-    const isRootPage = pathname === ROUTES.ROOT;
     
     const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
 
     if (status === 'unauthenticated' && isProtectedRoute) {
         router.push(ROUTES.AUTH);
-    } else if (status === 'authenticated' && (isAuthPage || isRootPage)) {
+    } else if (status === 'authenticated' && isAuthPage) {
         router.push(ROUTES.CHAT);
     }
   }, [status, pathname, router]);

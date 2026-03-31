@@ -8,6 +8,7 @@ export const FeatureCard = ({ icon, title, description, color }: { icon: string,
         src={icon} 
         alt={title} 
         fill 
+        sizes="128px"
         className="object-cover p-4"
       />
     </div>

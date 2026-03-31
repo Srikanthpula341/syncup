@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import PresenceBadge from '../ui/PresenceBadge';
+import { api } from '@/app/lib/api-client';
 
 interface Reply {
   id: string;
@@ -73,21 +74,15 @@ export default function ThreadSidebar() {
 
     setSending(true);
     try {
-      const response = await fetch('/api/messages/reply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: replyText.trim(),
-          userId: user.uid,
-          userName: user.displayName || user.email,
-          userAvatar: user.photoURL,
-          workspaceId: activeWorkspaceId,
-          channelId: activeChannelId,
-          parentMessageId: activeThreadMessageId
-        })
+      await api.messages.reply({
+        content: replyText.trim(),
+        userId: user.uid,
+        userName: user.displayName || user.email || '',
+        userAvatar: user.photoURL || '',
+        workspaceId: activeWorkspaceId,
+        channelId: activeChannelId,
+        parentMessageId: activeThreadMessageId
       });
-
-      if (!response.ok) throw new Error('Failed to send reply');
       setReplyText('');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';

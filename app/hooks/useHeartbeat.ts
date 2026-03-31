@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useAppSelector } from '@/app/store/hooks';
+import { api } from '@/app/lib/api-client';
 
 export const useHeartbeat = () => {
   const { user } = useAppSelector((state) => state.auth);
@@ -15,11 +16,7 @@ export const useHeartbeat = () => {
       if (document.visibilityState !== 'visible') return;
 
       try {
-        await fetch('/api/presence/heartbeat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.uid }),
-        });
+        await api.presence.heartbeat(user.uid);
       } catch (error) {
         // Silently fail as heartbeats are low priority
         console.warn('Heartbeat failed', error);

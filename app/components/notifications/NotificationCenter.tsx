@@ -18,6 +18,7 @@ import { db } from '@/app/lib/firebase';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/app/lib/utils';
 import toast from 'react-hot-toast';
+import { api } from '@/app/lib/api-client';
 
 interface Notification {
   id: string;
@@ -77,14 +78,10 @@ export default function NotificationCenter() {
     
     // 1. Mark as Read via API
     if (!notif.isRead) {
-      fetch('/api/notifications/manage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.uid,
-          notificationId: notif.id,
-          action: 'MARK_READ'
-        })
+      api.notifications.manage({
+        userId: user.uid,
+        notificationId: notif.id,
+        action: 'MARK_READ'
       }).catch(console.error);
     }
 
@@ -100,13 +97,9 @@ export default function NotificationCenter() {
   const markAllAsRead = async () => {
     if (!user || unreadCount === 0) return;
     try {
-      await fetch('/api/notifications/manage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.uid,
-          action: 'READ_ALL'
-        })
+      await api.notifications.manage({
+        userId: user.uid,
+        action: 'READ_ALL'
       });
       toast.success('All marked as read');
     } catch (err) {
@@ -122,14 +115,10 @@ export default function NotificationCenter() {
     // Let's implement individual deletes via API for each.
     
     notifications.forEach(n => {
-      fetch('/api/notifications/manage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.uid,
-          notificationId: n.id,
-          action: 'DELETE'
-        })
+      api.notifications.manage({
+        userId: user.uid,
+        notificationId: n.id,
+        action: 'DELETE'
       }).catch(console.error);
     });
     

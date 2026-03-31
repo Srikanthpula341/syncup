@@ -23,6 +23,7 @@ import MentionOverlay from "./MentionOverlay";
 import { X, FileIcon, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import { api } from "@/app/lib/api-client";
 
 export default function MessageInput() {
   const [content, setContent] = useState("");
@@ -162,15 +163,11 @@ export default function MessageInput() {
 
     const updateTypingStatus = async (isTyping: boolean) => {
       try {
-        await fetch('/api/chat/typing', {
-          method: isTyping ? 'POST' : 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            channelId: activeChannelId,
-            userId: user.uid,
-            userName: user.displayName || user.email,
-          }),
-        });
+        await api.chat.typing({
+          channelId: activeChannelId,
+          userId: user.uid,
+          userName: user.displayName || user.email || '',
+        }, isTyping);
       } catch (err) {
         console.error("Typing API error", err);
       }

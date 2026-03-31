@@ -62,15 +62,29 @@ export async function POST(req: Request) {
       createdAt: adminFirestore.FieldValue.serverTimestamp(),
     });
 
-    // Handle Unread Counts for DMs
+    // Update Unread Counts & Activity Timestamps for Sorting
+    const now = adminFirestore.FieldValue.serverTimestamp();
+    const batch = adminDb.batch();
+
+    // 1. Update Sender's activity (to reorder their list)
+    batch.set(adminDb.doc(`unread_counts/${userId}`), {
+      [`${channelId}_lastAt`]: now,
+      [`${channelId}_lastPreview`]: preview,
+    }, { merge: true });
+
+    // 2. Update Recipient's unread count and activity (for DMs)
     if (isDM) {
       const recipientUid = channelId.replace('dm-', '').split('_').find((id: string) => id !== userId);
       if (recipientUid) {
-        await adminDb.doc(`unread_counts/${recipientUid}`).set({
-          [channelId]: adminFirestore.FieldValue.increment(1)
+        batch.set(adminDb.doc(`unread_counts/${recipientUid}`), {
+          [channelId]: adminFirestore.FieldValue.increment(1),
+          [`${channelId}_lastAt`]: now,
+          [`${channelId}_lastPreview`]: preview,
         }, { merge: true });
       }
     }
+
+    await batch.commit();
 
     // Ping the user's lastSeen
     await adminDb.doc(`users/${userId}`).update({

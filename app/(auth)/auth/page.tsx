@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/app/lib/firebase';
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,7 @@ import { setAuthError, setAuthLoading } from '@/app/store/slices/authSlice';
 import Image from 'next/image';
 import { Mail, ShieldCheck } from 'lucide-react';
 import { cn } from '@/app/lib/utils';
+import { ROUTES } from '@/app/lib/route-constants';
 
 const AuthPage = () => {
   const router = useRouter();
@@ -17,7 +18,7 @@ const AuthPage = () => {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.push('/chat');
+      router.push(ROUTES.CHAT);
     }
   }, [status, router]);
 
@@ -25,7 +26,7 @@ const AuthPage = () => {
     dispatch(setAuthLoading());
     try {
       await signInWithPopup(auth, googleProvider);
-      router.push('/chat');
+      router.push(ROUTES.CHAT);
     } catch (err: unknown) {
       console.error(err);
       const errorMessage =

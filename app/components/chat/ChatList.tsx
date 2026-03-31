@@ -22,7 +22,7 @@ const ChatList = () => {
   const filteredChannels = useMemo(() => {
     return channels
       .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => (b.lastMessageAt || 0) - (a.lastMessageAt || 0) || a.name.localeCompare(b.name));
   }, [channels, searchTerm]);
 
   // 2. Process DMs (Filter & Sort)
@@ -30,7 +30,28 @@ const ChatList = () => {
     return users
       .filter(u => u.uid !== currentUser?.uid)
       .filter(u => (u.displayName || u.email || '').toLowerCase().includes(searchTerm.toLowerCase()))
-      .sort((a, b) => (unreadCounts[`dm-${[currentUser?.uid, a.uid].sort().join('_')}`] || 0) < (unreadCounts[`dm-${[currentUser?.uid, b.uid].sort().join('_')}`] || 0) ? 1 : -1);
+      .sort((a, b) => {
+        if (!currentUser) return 0;
+        const dmIdA = `dm-${[currentUser.uid, a.uid].sort().join('_')}`;
+        const dmIdB = `dm-${[currentUser.uid, b.uid].sort().join('_')}`;
+        
+        const lastAtARaw = unreadCounts[`${dmIdA}_lastAt`];
+        const lastAtBRaw = unreadCounts[`${dmIdB}_lastAt`];
+        
+        const lastAtA = (typeof lastAtARaw === 'object' && lastAtARaw !== null && 'toMillis' in lastAtARaw) 
+          ? (lastAtARaw as any).toMillis() 
+          : (typeof lastAtARaw === 'number' ? lastAtARaw : 0);
+          
+        const lastAtB = (typeof lastAtBRaw === 'object' && lastAtBRaw !== null && 'toMillis' in lastAtBRaw) 
+          ? (lastAtBRaw as any).toMillis() 
+          : (typeof lastAtBRaw === 'number' ? lastAtBRaw : 0);
+        
+        if (lastAtA !== lastAtB) return (lastAtB as number) - (lastAtA as number);
+        
+        const unreadA = (unreadCounts[dmIdA] as number) || 0;
+        const unreadB = (unreadCounts[dmIdB] as number) || 0;
+        return unreadB - unreadA;
+      });
   }, [users, currentUser, searchTerm, unreadCounts]);
 
   return (
@@ -76,7 +97,8 @@ const ChatList = () => {
                 key={channel.id}
                 name={channel.name}
                 isActive={activeChannelId === channel.id}
-                unreadCount={unreadCounts[channel.id] || 0}
+                unreadCount={(unreadCounts[channel.id] as number) || 0}
+                lastPreview={unreadCounts[`${channel.id}_lastPreview`] as string}
                 onClick={() => dispatch(setActiveChannel(channel.id))}
               />
             ))}
@@ -112,8 +134,9 @@ const ChatList = () => {
                   <DMItem 
                     key={targetUser.uid}
                     user={targetUser}
-                    unreadCount={unreadCount}
+                    unreadCount={(unreadCount as number) || 0}
                     isActive={activeChannelId === dmId}
+                    lastPreview={dmId ? (unreadCounts[`${dmId}_lastPreview`] as string) : undefined}
                     onClick={() => dmId && dispatch(setActiveChannel(dmId))}
                   />
                 );
@@ -129,7 +152,7 @@ const ChatList = () => {
 
 /* --- Helpers --- */
 
-const ChannelItem = ({ name, isActive, unreadCount, onClick }: { name: string, isActive: boolean, unreadCount: number, onClick: () => void }) => (
+const ChannelItem = ({ name, isActive, unreadCount, lastPreview, onClick }: { name: string, isActive: boolean, unreadCount: number, lastPreview?: string, onClick: () => void }) => (
   <button
     onClick={onClick}
     className={cn(
@@ -145,12 +168,19 @@ const ChannelItem = ({ name, isActive, unreadCount, onClick }: { name: string, i
     )}>
       <Hash size={16} strokeWidth={2.5} />
     </div>
-    <span className={cn(
-      "truncate text-sm font-bold tracking-tight flex-1 text-left",
-      isActive ? "text-orange-600" : "text-zinc-700"
-    )}>
-      {name}
-    </span>
+    <div className="flex flex-col flex-1 min-w-0">
+      <span className={cn(
+        "truncate text-sm font-bold tracking-tight text-left",
+        isActive ? "text-orange-600" : "text-zinc-700"
+      )}>
+        {name}
+      </span>
+      {unreadCount > 0 && lastPreview && (
+        <span className="text-[10px] font-medium opacity-60 truncate w-full">
+           {lastPreview}
+        </span>
+      )}
+    </div>
     {unreadCount > 0 && (
        <div className="ml-2 w-5 h-5 rounded-full bg-orange-500 text-white text-[10px] font-black flex items-center justify-center shadow-lg shadow-orange-500/20">
           {unreadCount}
@@ -159,7 +189,7 @@ const ChannelItem = ({ name, isActive, unreadCount, onClick }: { name: string, i
   </button>
 );
 
-const DMItem = ({ user, isActive, unreadCount, onClick }: { user: AppUser, isActive: boolean, unreadCount: number, onClick: () => void }) => {
+const DMItem = ({ user, isActive, unreadCount, lastPreview, onClick }: { user: AppUser, isActive: boolean, unreadCount: number, lastPreview?: string, onClick: () => void }) => {
   const { isOnline, statusText } = useUserStatus(user.uid);
 
   return (
@@ -202,8 +232,14 @@ const DMItem = ({ user, isActive, unreadCount, onClick }: { user: AppUser, isAct
           {user.displayName || user.email?.split('@')[0]}
         </span>
         <span className="text-[9px] font-bold opacity-60 group-hover:opacity-80 transition-opacity truncate w-full flex items-center">
-          {!isOnline && <Clock size={8} className="mr-1" />}
-          {statusText}
+          {lastPreview ? (
+            <span className="truncate">{lastPreview}</span>
+          ) : (
+            <>
+              {!isOnline && <Clock size={8} className="mr-1" />}
+              {statusText}
+            </>
+          )}
         </span>
       </div>
 

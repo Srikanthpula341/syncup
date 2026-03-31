@@ -29,7 +29,7 @@ export default function TaskCard({ task, index, isHighlighted }: TaskCardProps) 
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={cn(
-            "p-4 mb-3 bg-white rounded-xl border border-zinc-200 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all group",
+            "p-3 lg:p-4 mb-2 lg:mb-3 bg-white rounded-lg lg:rounded-xl border border-zinc-200 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all group",
             snapshot.isDragging && "shadow-xl border-orange-200 ring-2 ring-orange-500/10 rotate-1 scale-105",
             isHighlighted && "ring-2 ring-orange-500 ring-offset-2 border-orange-500 animate-pulse"
           )}

@@ -19,6 +19,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/app/lib/utils';
 import toast from 'react-hot-toast';
 import { api } from '@/app/lib/api-client';
+import { ROUTES } from '@/app/lib/route-constants';
 
 interface Notification {
   id: string;
@@ -88,7 +89,7 @@ export default function NotificationCenter() {
     // 2. Redirect & Select Channel
     if (notif.channelId) {
       dispatch(setActiveChannel(notif.channelId));
-      router.push('/chat');
+      router.push(ROUTES.CHAT);
     }
 
     setIsOpen(false);
@@ -229,7 +230,13 @@ export default function NotificationCenter() {
             {/* Footer */}
             {notifications.length > 0 && (
               <div className="p-3 bg-zinc-50 text-center">
-                 <button className="text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:text-orange-600 transition-colors">
+                 <button 
+                  onClick={() => {
+                    setIsOpen(false);
+                    router.push(ROUTES.ACTIVITY);
+                  }}
+                  className="text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:text-orange-600 transition-colors"
+                >
                     View Activity Timeline
                  </button>
               </div>

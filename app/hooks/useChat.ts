@@ -41,10 +41,13 @@ export const useChat = () => {
     []
   );
 
-  // 0. Global User Sync
+  // 0. Global User Sync (Discovery)
   useEffect(() => {
     if (!user) return;
+    
+    // Sync all users for discovery/DMs
     const q = query(collection(db, 'users'), orderBy('displayName'), limit(100));
+    
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
         const data = snapshot.docs.map(doc => ({ 
@@ -55,7 +58,7 @@ export const useChat = () => {
       },
       (error) => {
         if (error.code === 'permission-denied' && !user) return;
-        toast.error(`User sync error: ${error.message}`);
+        console.error("User sync error:", error);
       }
     );
     return () => unsubscribe();
@@ -107,7 +110,14 @@ export const useChat = () => {
     const q = query(collection(db, 'workspaces', activeWorkspaceId, 'channels'), orderBy('name'));
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Channel[];
+        const data = snapshot.docs.map(doc => {
+          const d = doc.data();
+          return { 
+            id: doc.id, 
+            ...d, 
+            lastMessageAt: d.lastMessageAt?.toMillis() || 0 
+          } as Channel;
+        });
         dispatch(setChannels(data));
       },
       (error) => {

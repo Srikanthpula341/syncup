@@ -2,16 +2,19 @@
 
 import React from 'react';
 import { useAppSelector, useAppDispatch } from '@/app/store/hooks';
-import { Mail, Shield, User, Briefcase, Activity, Calendar, LogOut, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Mail, Shield, User, Briefcase, Activity, LogOut, CheckCircle2, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
-import { format } from 'date-fns';
 import { auth } from '@/app/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { useTasks } from '@/app/hooks/useTasks';
 import { useActivities } from '@/app/hooks/useActivities';
+import { cn } from '@/app/lib/utils';
+import { signOut as clearAuth } from '@/app/store/slices/authSlice';
+import { ROUTES } from '@/app/lib/route-constants';
 
 export default function ProfileContent() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const { workspaces } = useAppSelector((state) => state.chat);
   const { activeWorkspaceId } = useAppSelector((state) => state.ui);
@@ -21,8 +24,13 @@ export default function ProfileContent() {
   const { activities } = useActivities(activeWorkspaceId);
 
   const handleLogout = async () => {
-    await auth.signOut();
-    router.push('/');
+    try {
+      await auth.signOut();
+      dispatch(clearAuth()); // Clear Redux state
+      router.push(ROUTES.AUTH);
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   if (!user) return null;
@@ -150,8 +158,4 @@ export default function ProfileContent() {
       </div>
     </div>
   );
-}
-
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
 }

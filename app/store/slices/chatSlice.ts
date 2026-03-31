@@ -27,6 +27,8 @@ export interface Channel {
   name: string;
   type: 'public' | 'private';
   membersCount: number;
+  lastMessageAt?: number;
+  lastMessagePreview?: string;
 }
 
 export interface Workspace {
@@ -45,6 +47,7 @@ export interface AppUser {
     seconds: number; 
     nanoseconds: number;
   } | null;
+  lastDMAt?: number;
 }
 
 interface ChatState {
@@ -52,7 +55,7 @@ interface ChatState {
   channels: Channel[];
   messages: Message[];
   users: AppUser[];
-  unreadCounts: Record<string, number>;
+  unreadCounts: Record<string, number | string | undefined>;
   loading: {
     workspaces: boolean;
     channels: boolean;
@@ -98,7 +101,7 @@ const chatSlice = createSlice({
       state.users = action.payload;
       state.loading.users = false;
     },
-    setUnreadCounts: (state, action: PayloadAction<Record<string, number>>) => {
+    setUnreadCounts: (state, action: PayloadAction<Record<string, number | string | undefined>>) => {
       state.unreadCounts = action.payload;
     },
   },

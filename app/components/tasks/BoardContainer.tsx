@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import Column from './Column';
+import CreateTaskModal from './CreateTaskModal';
 import { useTasks, Task } from '@/app/hooks/useTasks';
 import { useAppSelector } from '@/app/store/hooks';
 import { Layout, Filter, Search, PlusCircle } from 'lucide-react';
@@ -16,8 +17,9 @@ const COLUMNS = [
 
 export default function BoardContainer() {
   const { activeWorkspaceId } = useAppSelector((state) => state.ui);
-  const { tasks, loading, moveTask } = useTasks(activeWorkspaceId);
+  const { tasks, loading, moveTask, createTask } = useTasks(activeWorkspaceId);
   const [boardTasks, setBoardTasks] = useState<Task[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setBoardTasks(tasks);
@@ -81,7 +83,10 @@ export default function BoardContainer() {
           </div>
           
           <div className="flex items-center gap-3">
-             <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-colors shadow-lg shadow-zinc-900/10">
+             <button 
+                onClick={() => setIsModalOpen(true)}
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-colors shadow-lg shadow-zinc-900/10"
+             >
                 <PlusCircle size={18} />
                 <span>Create Task</span>
              </button>
@@ -128,6 +133,13 @@ export default function BoardContainer() {
           </div>
         </DragDropContext>
       </div>
+
+      {/* Create Task Modal */}
+      <CreateTaskModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={createTask}
+      />
     </div>
   );
 }

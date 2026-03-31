@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 import { getAuthSession } from '@/app/lib/auth-util';
+import { ACTIVITY_TYPES } from '@/app/lib/route-constants';
 
 export async function POST(req: Request) {
   try {
@@ -41,12 +42,18 @@ export async function POST(req: Request) {
     // Save task to Firestore
     const taskRef = await adminDb.collection('tasks').add(taskData);
 
-    // Log activity for the timeline
+    // Activity Log
+    const involvedUserIds = [creatorId];
+    if (assigneeId && assigneeId !== creatorId) {
+      involvedUserIds.push(assigneeId);
+    }
+
     await adminDb.collection('activities').add({
       workspaceId,
-      type: 'TASK_CREATED',
+      type: ACTIVITY_TYPES.TASK_CREATED,
       userId: creatorId,
       entityId: taskRef.id,
+      involvedUserIds, // Added for personalization
       metadata: {
         taskTitle: title.trim(),
         columnId,

@@ -20,15 +20,15 @@ import { useAppDispatch } from '@/app/store/hooks';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/app/lib/utils';
 import Image from 'next/image';
-import { ROUTES } from '@/app/lib/route-constants';
+import { ROUTES, ACTIVITY_TYPES } from '@/app/lib/route-constants';
 
 const activityIcons = {
-  MESSAGE_SENT: { icon: MessageSquare, color: 'bg-blue-500', label: 'Message Sent' },
-  TASK_CREATED: { icon: PlusCircle, color: 'bg-green-500', label: 'Task Created' },
-  TASK_MOVED: { icon: Move, color: 'bg-orange-500', label: 'Task Moved' },
-  TASK_COMMENTED: { icon: MessageCircle, color: 'bg-purple-500', label: 'Task Comment' },
-  THREAD_REPLY_SENT: { icon: Zap, color: 'bg-yellow-500', label: 'Thread Reply' },
-  WORKSPACE_CREATED: { icon: LayoutGrid, color: 'bg-indigo-500', label: 'System' },
+  [ACTIVITY_TYPES.MESSAGE_SENT]: { icon: MessageSquare, color: 'bg-blue-500', label: 'Message Sent' },
+  [ACTIVITY_TYPES.TASK_CREATED]: { icon: PlusCircle, color: 'bg-green-500', label: 'Task Created' },
+  [ACTIVITY_TYPES.TASK_MOVED]: { icon: Move, color: 'bg-orange-500', label: 'Task Moved' },
+  [ACTIVITY_TYPES.TASK_COMMENTED]: { icon: MessageCircle, color: 'bg-purple-500', label: 'Task Comment' },
+  [ACTIVITY_TYPES.THREAD_REPLY_SENT]: { icon: Zap, color: 'bg-yellow-500', label: 'Thread Reply' },
+  [ACTIVITY_TYPES.WORKSPACE_CREATED]: { icon: LayoutGrid, color: 'bg-indigo-500', label: 'System' },
 };
 
 export default function ActivityTimeline() {
@@ -100,7 +100,11 @@ export default function ActivityTimeline() {
               const config = activityIcons[activity.type] || activityIcons.WORKSPACE_CREATED;
               const Icon = config.icon;
 
-              const isTaskRelated = ['TASK_CREATED', 'TASK_MOVED', 'TASK_COMMENTED'].includes(activity.type);
+              const isTaskRelated = ([
+                ACTIVITY_TYPES.TASK_CREATED, 
+                ACTIVITY_TYPES.TASK_MOVED, 
+                ACTIVITY_TYPES.TASK_COMMENTED
+              ] as string[]).includes(activity.type);
 
               return (
                 <div 
@@ -138,22 +142,22 @@ export default function ActivityTimeline() {
                      </div>
 
                      <p className="text-sm text-zinc-600 leading-relaxed font-medium text-left">
-                        {activity.type === 'TASK_MOVED' && (
+                        {activity.type === ACTIVITY_TYPES.TASK_MOVED && (
                           <span>Moved task <span className="font-black text-zinc-900">"{activity.metadata?.taskTitle || activity.entityId.substring(0, 5)}"</span> to <span className="px-2 py-0.5 bg-orange-100 text-orange-600 rounded-lg text-[10px] font-black uppercase border border-orange-200/50">{activity.metadata?.to}</span></span>
                         )}
-                        {activity.type === 'TASK_CREATED' && (
+                        {activity.type === ACTIVITY_TYPES.TASK_CREATED && (
                           <span>Created a new task: <span className="font-black text-zinc-900 underline decoration-orange-200 decoration-2 underline-offset-4">{activity.metadata?.taskTitle}</span></span>
                         )}
-                        {activity.type === 'MESSAGE_SENT' && (
+                        {activity.type === ACTIVITY_TYPES.MESSAGE_SENT && (
                           <span>Sent a message in <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-lg font-black text-[10px] uppercase border border-blue-100">#{activity.metadata?.channelName || 'general'}</span></span>
                         )}
-                        {activity.type === 'THREAD_REPLY_SENT' && (
+                        {activity.type === ACTIVITY_TYPES.THREAD_REPLY_SENT && (
                           <span>Replied to a thread: <span className="italic text-zinc-400 font-bold">"{activity.metadata?.replyPreview || '...'}"</span></span>
                         )}
-                        {activity.type === 'TASK_COMMENTED' && (
+                        {activity.type === ACTIVITY_TYPES.TASK_COMMENTED && (
                            <span>Commented on task: <span className="italic text-zinc-400 font-bold">"{activity.metadata?.preview || '...'}"</span></span>
                         )}
-                        {activity.type === 'WORKSPACE_CREATED' && (
+                        {activity.type === ACTIVITY_TYPES.WORKSPACE_CREATED && (
                           <span>Created the workspace <span className="font-black text-zinc-900">"{activity.metadata?.workspaceName || 'SyncUp'}"</span></span>
                         )}
                      </p>

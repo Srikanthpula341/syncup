@@ -41,12 +41,12 @@ export const useChat = () => {
     []
   );
 
-  // 0. Workspace Member Sync (Isolation)
+  // 0. Global User Sync (Discovery)
   useEffect(() => {
-    if (!user || !activeWorkspaceId) return;
+    if (!user) return;
     
-    // Sync members of the active workspace
-    const q = query(collection(db, 'workspaces', activeWorkspaceId, 'members'), orderBy('displayName'), limit(50));
+    // Sync all users for discovery/DMs
+    const q = query(collection(db, 'users'), orderBy('displayName'), limit(100));
     
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
@@ -54,18 +54,15 @@ export const useChat = () => {
           uid: doc.id, 
           ...doc.data() 
         })) as AppUser[];
-        
-        // If the workspace is new or members collection is empty, 
-        // we might not see anyone. The API should ideally populate this.
         dispatch(setUsers(data));
       },
       (error) => {
         if (error.code === 'permission-denied' && !user) return;
-        console.error("Member sync error:", error);
+        console.error("User sync error:", error);
       }
     );
     return () => unsubscribe();
-  }, [dispatch, user, activeWorkspaceId]);
+  }, [dispatch, user]);
 
   // 0.5. Unread Counts Sync
   useEffect(() => {

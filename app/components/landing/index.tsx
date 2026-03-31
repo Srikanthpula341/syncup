@@ -1,10 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import FooterComponent from '../footer'
 import { FeatureCard } from './FeatureCard'
 import { StatItem } from './StatItem'
-import { Navbar } from './Navbar'
 
 
 
@@ -14,8 +12,8 @@ import { Navbar } from './Navbar'
 
 const LandingComponent = () => {
   return (
-    <div className="min-h-screen bg-[#FDF8F5] text-[#1A1A1A] font-sans overflow-x-hidden">
-      <Navbar />
+    <div className="bg-[#FDF8F5] text-[#1A1A1A] font-sans overflow-x-hidden pt-12">
+      {/* Hero Section */}
 
       {/* Hero Section */}
       <section className="relative pt-20 pb-32 px-8 max-w-7xl mx-auto flex flex-col items-center md:items-start">
@@ -151,7 +149,6 @@ const LandingComponent = () => {
           />
         </div>
       </section>
-      <FooterComponent/>
 
       <style jsx global>{`
         @keyframes bounce-slow {

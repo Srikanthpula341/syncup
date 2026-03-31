@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
+import { getAuthSession } from '@/app/lib/auth-util';
 
 export async function POST(req: Request) {
   try {
@@ -7,6 +8,12 @@ export async function POST(req: Request) {
 
     if (!channelId || !userId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Security: Verify authentication
+    const authUid = await getAuthSession();
+    if (!authUid || authUid !== userId) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or spoofed' }, { status: 401 });
     }
 
     await adminDb.doc(`typing_states/${channelId}`).set({
@@ -29,6 +36,12 @@ export async function DELETE(req: Request) {
 
     if (!channelId || !userId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Security: Verify authentication
+    const authUid = await getAuthSession();
+    if (!authUid || authUid !== userId) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or spoofed' }, { status: 401 });
     }
 
     await adminDb.doc(`typing_states/${channelId}`).update({

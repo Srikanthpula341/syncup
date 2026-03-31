@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
+import { getAuthSession } from '@/app/lib/auth-util';
 
 export async function POST(req: Request) {
   try {
@@ -7,6 +8,12 @@ export async function POST(req: Request) {
 
     if (!messageId || !emoji || !userId || !channelId || !action) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Security: Verify authentication
+    const authUid = await getAuthSession();
+    if (!authUid || authUid !== userId) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or spoofed' }, { status: 401 });
     }
 
     const isDM = channelId.startsWith('dm-');

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Attachment } from '@/app/store/slices/chatSlice';
 
 // --- Messages ---
@@ -43,7 +42,7 @@ export interface CreateTaskRequest {
   description?: string;
   assigneeId?: string | null;
   priority?: 'low' | 'medium' | 'high';
-  dueDate?: any;
+  dueDate?: string | { toMillis: () => number } | null;
   columnId?: string;
   workspaceId: string;
   creatorId: string;
@@ -57,6 +56,15 @@ export interface MoveTaskRequest {
   newColumnId: string;
   oldColumnName: string;
   newColumnName: string;
+}
+
+export interface TaskCommentRequest {
+  taskId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  text: string;
+  workspaceId?: string;
 }
 
 // --- Presence ---

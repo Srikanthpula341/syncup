@@ -8,6 +8,7 @@ export const API_ROUTES = {
   TASKS: {
     CREATE: '/api/tasks/create',
     MOVE: '/api/tasks/move',
+    COMMENT: '/api/tasks/comment',
   },
   PRESENCE: {
     HEARTBEAT: '/api/presence/heartbeat',

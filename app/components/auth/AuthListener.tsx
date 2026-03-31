@@ -57,12 +57,16 @@ export default function AuthListener() {
 
     const isAuthPage = pathname === '/auth';
     const isRootPage = pathname === '/';
+    
+    // Protect: /chat, /tasks, /activity, /workspaces, /profile
+    const protectedRoutes = ['/chat', '/tasks', '/activity', '/workspaces', '/profile'];
+    const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
-    // if (status === 'unauthenticated' && !isAuthPage) {
-    //   router.push('/auth');
-    // } else if (status === 'authenticated' && (isAuthPage || isRootPage)) {
-    //   router.push('/dashboard');
-    // }
+    if (status === 'unauthenticated' && isProtectedRoute) {
+        router.push('/auth');
+    } else if (status === 'authenticated' && (isAuthPage || isRootPage)) {
+        router.push('/chat');
+    }
   }, [status, pathname, router]);
 
   if (status === 'loading') {

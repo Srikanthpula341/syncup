@@ -9,6 +9,7 @@ import { auth } from '@/app/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { useTasks } from '@/app/hooks/useTasks';
 import { useActivities } from '@/app/hooks/useActivities';
+import { cn } from '@/app/lib/utils';
 
 export default function ProfileContent() {
   const router = useRouter();
@@ -152,6 +153,3 @@ export default function ProfileContent() {
   );
 }
 
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
-}

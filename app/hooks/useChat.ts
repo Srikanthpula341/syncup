@@ -41,25 +41,31 @@ export const useChat = () => {
     []
   );
 
-  // 0. Global User Sync
+  // 0. Workspace Member Sync (Isolation)
   useEffect(() => {
-    if (!user) return;
-    const q = query(collection(db, 'users'), orderBy('displayName'), limit(100));
+    if (!user || !activeWorkspaceId) return;
+    
+    // Sync members of the active workspace
+    const q = query(collection(db, 'workspaces', activeWorkspaceId, 'members'), orderBy('displayName'), limit(50));
+    
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
         const data = snapshot.docs.map(doc => ({ 
           uid: doc.id, 
           ...doc.data() 
         })) as AppUser[];
+        
+        // If the workspace is new or members collection is empty, 
+        // we might not see anyone. The API should ideally populate this.
         dispatch(setUsers(data));
       },
       (error) => {
         if (error.code === 'permission-denied' && !user) return;
-        toast.error(`User sync error: ${error.message}`);
+        console.error("Member sync error:", error);
       }
     );
     return () => unsubscribe();
-  }, [dispatch, user]);
+  }, [dispatch, user, activeWorkspaceId]);
 
   // 0.5. Unread Counts Sync
   useEffect(() => {
@@ -107,7 +113,14 @@ export const useChat = () => {
     const q = query(collection(db, 'workspaces', activeWorkspaceId, 'channels'), orderBy('name'));
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Channel[];
+        const data = snapshot.docs.map(doc => {
+          const d = doc.data();
+          return { 
+            id: doc.id, 
+            ...d, 
+            lastMessageAt: d.lastMessageAt?.toMillis() || 0 
+          } as Channel;
+        });
         dispatch(setChannels(data));
       },
       (error) => {

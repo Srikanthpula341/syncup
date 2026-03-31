@@ -1,12 +1,19 @@
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/app/lib/firebase-admin';
 
+interface UpdateWorkspaceRequest {
+  workspaceId: string;
+  userId: string;
+  name?: string;
+  icon?: string;
+}
+
 export async function POST(req: Request) {
   try {
-    const { workspaceId, userId, name, avatar } = await req.json();
+    const { workspaceId, userId, name, icon }: UpdateWorkspaceRequest = await req.json();
 
     if (!workspaceId || !userId) {
-      return NextResponse.json({ error: 'Missing required IDs' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const workspaceRef = adminDb.doc(`workspaces/${workspaceId}`);
@@ -25,9 +32,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized administrative action' }, { status: 403 });
     }
 
-    const updateData: any = {};
+    const updateData: Record<string, string> = {};
     if (name) updateData.name = name;
-    if (avatar) updateData.avatar = avatar;
+    if (icon) updateData.icon = icon;
 
     if (Object.keys(updateData).length > 0) {
       await workspaceRef.update(updateData);

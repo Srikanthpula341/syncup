@@ -12,7 +12,7 @@ export default function MarketingLayout({
   return (
     <div className="min-h-screen bg-[#FDF8F5] text-[#1A1A1A] font-sans flex flex-col">
       <Navbar />
-      <main className="flex-grow">
+      <main className="grow">
         {children}
       </main>
       <FooterComponent />

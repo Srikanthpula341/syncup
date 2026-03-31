@@ -20,8 +20,9 @@ import {
 import { AppUser, Attachment } from "@/app/store/slices/chatSlice";
 import { cn } from "@/app/lib/utils";
 import MentionOverlay from "./MentionOverlay";
-import { X, FileIcon, Loader2, Paperclip } from "lucide-react";
+import { X, FileIcon, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 export default function MessageInput() {
   const [content, setContent] = useState("");
@@ -225,7 +226,14 @@ export default function MessageInput() {
             {attachments.map((file) => (
               <div key={file.id} className="group relative w-32 h-20 rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-sm hover:border-orange-200 transition-colors">
                 {file.type.startsWith('image/') ? (
-                  <img src={file.url} alt={file.name} className="w-full h-full object-cover" />
+                  <div className="relative w-full h-full">
+                    <Image 
+                      src={file.url} 
+                      alt={file.name} 
+                      fill 
+                      className="object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center p-2">
                     <FileIcon className="w-6 h-6 text-zinc-400 mb-1" />

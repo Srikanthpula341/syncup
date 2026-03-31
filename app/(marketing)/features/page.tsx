@@ -79,7 +79,7 @@ export default function FeaturesPage() {
           transition={{ delay: 0.1 }}
           className="text-gray-500 text-lg md:text-xl font-medium leading-relaxed"
         >
-          We've carefully integrated chat and task management into a single, high-fidelity experience. 
+          We&apos;ve carefully integrated chat and task management into a single, high-fidelity experience. 
           Everything you need to move from idea to execution.
         </motion.p>
       </section>

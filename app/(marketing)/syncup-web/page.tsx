@@ -33,7 +33,7 @@ export default function SyncUpWebPortal() {
             transition={{ delay: 0.1 }}
             className="text-5xl md:text-7xl font-extrabold text-zinc-900 leading-[1.1] tracking-tighter"
           >
-            The world's fastest <br />
+            The world&apos;s fastest <br />
             <span className="text-[#FF6B35]">collaboration portal.</span>
           </motion.h1>
 
@@ -73,7 +73,7 @@ export default function SyncUpWebPortal() {
           transition={{ delay: 0.4 }}
           className="flex-1 relative aspect-video w-full rounded-[40px] overflow-hidden bg-white shadow-2xl p-4 border border-zinc-100"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-50 to-white -z-10" />
+          <div className="absolute inset-0 bg-linear-to-br from-orange-50 to-white -z-10" />
           <div className="w-full h-full rounded-[30px] border border-zinc-200 bg-zinc-50 overflow-hidden flex items-center justify-center p-8">
              <div className="w-full h-full relative group">
                 <Image 
@@ -116,7 +116,7 @@ export default function SyncUpWebPortal() {
             Secure. Private. Professional.
          </h2>
          <p className="text-orange-100 text-lg md:text-xl font-bold opacity-80 max-w-2xl mx-auto">
-            SyncUp Web leverages industry-standard encryption and our proprietary real-time sync architecture to keep your team's data isolated and safe.
+            SyncUp Web leverages industry-standard encryption and our proprietary real-time sync architecture to keep your team&apos;s data isolated and safe.
          </p>
          <button className="bg-zinc-900 px-10 py-4 rounded-2xl font-black text-lg hover:bg-zinc-800 transition-all">
             Get Security Whitepaper

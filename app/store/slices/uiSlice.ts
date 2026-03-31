@@ -15,8 +15,8 @@ const initialState: UIState = {
   isMobileMenuOpen: false,
   isThreadOpen: false,
   isSettingsModalOpen: false,
-  activeWorkspaceId: 'syncup-workspace',
-  activeChannelId: 'general',
+  activeWorkspaceId: null,
+  activeChannelId: null,
   activeThreadMessageId: null,
 };
 

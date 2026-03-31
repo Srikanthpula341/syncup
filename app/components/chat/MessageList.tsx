@@ -31,7 +31,7 @@ const AttachmentGrid = ({ attachments, isMe }: { attachments: Attachment[], isMe
         )}>
           {images.map((img) => (
             <div key={img.id} className="relative aspect-square group cursor-pointer">
-              <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
+              <Image src={img.url} alt={img.name} fill className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                 <ExternalLink className="text-white w-5 h-5" />
               </div>

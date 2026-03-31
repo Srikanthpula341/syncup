@@ -5,6 +5,7 @@ import { useAppSelector, useAppDispatch } from '@/app/store/hooks';
 import { setSettingsModalOpen } from '@/app/store/slices/uiSlice';
 import { X, Users, Settings, ShieldAlert, Save, Trash2, UserMinus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { cn } from '@/app/lib/utils';
 import toast from 'react-hot-toast';
 

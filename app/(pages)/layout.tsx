@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import PresenceProvider from '@/app/components/providers/PresenceProvider';
 import { useNotifications } from '@/app/hooks/useNotifications';
 import WorkspaceSettingsModal from '@/app/components/workspaces/WorkspaceSettingsModal';
+import { usePersistence } from '@/app/hooks/usePersistence';
 
 export default function PagesLayout({
   children,
@@ -12,6 +13,7 @@ export default function PagesLayout({
   children: React.ReactNode;
 }) {
   useNotifications(); // Phase 9: Global Notifications
+  usePersistence(); // Phase 14: Session Persistence
   
   return (
     <PresenceProvider>

@@ -5,6 +5,7 @@ export async function PATCH(req: Request) {
   try {
     const { 
       taskId, 
+      taskTitle,
       userId, 
       workspaceId,
       newColumnId, 
@@ -29,6 +30,7 @@ export async function PATCH(req: Request) {
       userId,
       entityId: taskId,
       metadata: {
+        taskTitle: taskTitle || 'Unknown Task',
         from: oldColumnName || 'Unknown',
         to: newColumnName || 'Unknown',
       },

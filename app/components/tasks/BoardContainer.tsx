@@ -52,7 +52,7 @@ export default function BoardContainer() {
       const oldColumnName = COLUMNS.find(c => c.id === source.droppableId)?.title || source.droppableId;
       const newColumnName = COLUMNS.find(c => c.id === destination.droppableId)?.title || destination.droppableId;
       
-      await moveTask(draggableId, destination.droppableId, oldColumnName, newColumnName);
+      await moveTask(draggableId, movedTask.title, destination.droppableId, oldColumnName, newColumnName);
     }
   };
 

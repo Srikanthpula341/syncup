@@ -11,6 +11,7 @@ import PresenceBadge from '../ui/PresenceBadge';
 interface TaskCardProps {
   task: Task;
   index: number;
+  isHighlighted?: boolean;
 }
 
 const priorityColors = {
@@ -19,7 +20,7 @@ const priorityColors = {
   high: 'bg-red-100 text-red-700 border-red-200',
 };
 
-export default function TaskCard({ task, index }: TaskCardProps) {
+export default function TaskCard({ task, index, isHighlighted }: TaskCardProps) {
   return (
     <Draggable draggableId={task.id} index={index}>
       {(provided, snapshot) => (
@@ -29,7 +30,8 @@ export default function TaskCard({ task, index }: TaskCardProps) {
           {...provided.dragHandleProps}
           className={cn(
             "p-4 mb-3 bg-white rounded-xl border border-zinc-200 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all group",
-            snapshot.isDragging && "shadow-xl border-orange-200 ring-2 ring-orange-500/10 rotate-1 scale-105"
+            snapshot.isDragging && "shadow-xl border-orange-200 ring-2 ring-orange-500/10 rotate-1 scale-105",
+            isHighlighted && "ring-2 ring-orange-500 ring-offset-2 border-orange-500 animate-pulse"
           )}
         >
           {/* Priority Badge */}

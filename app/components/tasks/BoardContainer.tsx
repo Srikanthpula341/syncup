@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import Column from './Column';
 import CreateTaskModal from './CreateTaskModal';
@@ -16,6 +17,8 @@ const COLUMNS = [
 ];
 
 export default function BoardContainer() {
+  const searchParams = useSearchParams();
+  const highlightedTaskId = searchParams.get('taskId');
   const { activeWorkspaceId } = useAppSelector((state) => state.ui);
   const { tasks, loading, moveTask, createTask } = useTasks(activeWorkspaceId);
   const [boardTasks, setBoardTasks] = useState<Task[]>([]);
@@ -128,6 +131,7 @@ export default function BoardContainer() {
                 title={column.title} 
                 tasks={boardTasks.filter(t => t.columnId === column.id)}
                 count={boardTasks.filter(t => t.columnId === column.id).length}
+                highlightedTaskId={highlightedTaskId}
               />
             ))}
           </div>

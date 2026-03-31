@@ -1,15 +1,13 @@
 'use client';
 
-import React from 'react';
-import { 
-  MessageCircle, 
-  CheckSquare, 
-  Activity, 
-  Building2, 
-  Users 
+import { cn } from '@/app/lib/utils';
+import {
+  Activity,
+  Building2,
+  CheckSquare,
+  MessageCircle
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { cn } from '@/app/lib/utils';
 
 const menu = [
   { name: "Chat", icon: MessageCircle, path: "/chat" },
@@ -23,7 +21,7 @@ export default function MobileNav() {
   const router = useRouter();
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-100 px-6 py-3 flex items-center justify-between z-[100] pb-safe-offset-4">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-100 px-6 py-3 flex items-center justify-between z-100 pb-safe-offset-4">
       {menu.map((item) => {
         const Icon = item.icon;
         const isActive = pathname.startsWith(item.path);

@@ -12,9 +12,10 @@ interface ColumnProps {
   title: string;
   tasks: Task[];
   count: number;
+  highlightedTaskId: string | null;
 }
 
-export default function Column({ id, title, tasks, count }: ColumnProps) {
+export default function Column({ id, title, tasks, count, highlightedTaskId }: ColumnProps) {
   return (
     <div className="flex flex-col w-80 min-w-[320px] bg-zinc-100/50 rounded-2xl border border-zinc-200/60 overflow-hidden shadow-sm h-full">
       {/* Column Header */}
@@ -45,7 +46,12 @@ export default function Column({ id, title, tasks, count }: ColumnProps) {
             )}
           >
             {tasks.map((task, index) => (
-              <TaskCard key={task.id} task={task} index={index} />
+              <TaskCard 
+                key={task.id} 
+                task={task} 
+                index={index} 
+                isHighlighted={task.id === highlightedTaskId}
+              />
             ))}
             {provided.placeholder}
             

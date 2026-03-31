@@ -99,8 +99,21 @@ export default function ActivityTimeline() {
               const config = activityIcons[activity.type] || activityIcons.WORKSPACE_CREATED;
               const Icon = config.icon;
 
+              const isTaskRelated = ['TASK_CREATED', 'TASK_MOVED', 'TASK_COMMENTED'].includes(activity.type);
+
               return (
-                <div key={activity.id} className="relative flex gap-6 group">
+                <div 
+                  key={activity.id} 
+                  className={cn(
+                    "relative flex gap-6 group transition-all",
+                    isTaskRelated && "cursor-pointer"
+                  )}
+                  onClick={() => {
+                    if (isTaskRelated) {
+                      router.push(`/tasks?taskId=${activity.entityId}`);
+                    }
+                  }}
+                >
                   {/* Icon Node */}
                   <div className={cn(
                     "w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-110 z-10",

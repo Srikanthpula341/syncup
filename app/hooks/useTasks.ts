@@ -83,12 +83,13 @@ export const useTasks = (workspaceId: string | null) => {
     }
   };
 
-  const moveTask = async (taskId: string, newColumnId: string, oldColumnName: string, newColumnName: string) => {
+  const moveTask = async (taskId: string, taskTitle: string, newColumnId: string, oldColumnName: string, newColumnName: string) => {
     if (!user || !workspaceId) return;
 
     try {
       await api.tasks.move({
         taskId,
+        taskTitle,
         userId: user.uid,
         workspaceId,
         newColumnId,

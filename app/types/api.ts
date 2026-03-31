@@ -51,6 +51,7 @@ export interface CreateTaskRequest {
 
 export interface MoveTaskRequest {
   taskId: string;
+  taskTitle: string;
   userId: string;
   workspaceId: string;
   newColumnId: string;

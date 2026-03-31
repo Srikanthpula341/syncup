@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 import { getAuthSession } from '@/app/lib/auth-util';
+import { ACTIVITY_TYPES } from '@/app/lib/route-constants';
 
 export async function POST(req: Request) {
   try {
@@ -31,15 +32,28 @@ export async function POST(req: Request) {
       createdAt: adminFirestore.FieldValue.serverTimestamp(),
     };
 
+    // Fetch task to get involved users
+    const taskDoc = await adminDb.doc(`tasks/${taskId}`).get();
+    const taskData = taskDoc.exists ? taskDoc.data() : null;
+    const taskCreatorId = taskData?.creatorId as string | undefined;
+    const taskAssigneeId = taskData?.assigneeId as string | undefined;
+
     // Save comment to Firestore
     const commentRef = await adminDb.collection(`tasks/${taskId}/comments`).add(commentData);
 
     // Activity Log
+    const involvedUserIds = [userId];
+    if (taskCreatorId && taskCreatorId !== userId) involvedUserIds.push(taskCreatorId);
+    if (taskAssigneeId && taskAssigneeId !== userId && taskAssigneeId !== taskCreatorId) {
+      involvedUserIds.push(taskAssigneeId);
+    }
+
     await adminDb.collection('activities').add({
       workspaceId: workspaceId || 'unknown',
-      type: 'TASK_COMMENTED',
+      type: ACTIVITY_TYPES.TASK_COMMENTED,
       userId,
       entityId: taskId,
+      involvedUserIds, // Added for personalization
       metadata: {
         commentId: commentRef.id,
         preview: text.trim().substring(0, 50),

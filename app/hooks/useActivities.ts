@@ -11,53 +11,84 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
 import { useAppSelector } from '@/app/store/hooks';
+import { ACTIVITY_TYPES } from '@/app/lib/route-constants';
 
 export interface Activity {
   id: string;
   workspaceId: string;
-  type: 'MESSAGE_SENT' | 'TASK_CREATED' | 'TASK_MOVED' | 'TASK_COMMENTED' | 'THREAD_REPLY_SENT' | 'WORKSPACE_CREATED';
+  type: keyof typeof ACTIVITY_TYPES;
   userId: string;
   entityId: string;
-  metadata: any;
-  createdAt: any;
+  involvedUserIds?: string[];
+  metadata: Record<string, string | number | boolean | null | undefined>;
+  createdAt: number;
 }
 
 export const useActivities = (workspaceId: string | null) => {
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAppSelector((state) => state.auth);
+  
+  // Single state object to manage activities, loading, and the current workspace track
+  const [state, setState] = useState({ 
+    activities: [] as Activity[], 
+    loading: !!workspaceId && !!user?.uid,
+    lastWorkspaceId: workspaceId,
+    lastUserId: user?.uid
+  });
+
+  // pattern: Adjusting state during render (recommended for resets)
+  if (state.lastWorkspaceId !== workspaceId || state.lastUserId !== user?.uid) {
+    setState({
+      activities: [],
+      loading: !!workspaceId && !!user?.uid,
+      lastWorkspaceId: workspaceId,
+      lastUserId: user?.uid
+    });
+  }
 
   useEffect(() => {
-    if (!workspaceId) {
-      setActivities([]);
-      setLoading(false);
-      return;
-    }
+    if (!workspaceId || !user?.uid) return;
+
+    // Use a flag to prevent setting state on unmounted component
+    let isMounted = true;
 
     const q = query(
       collection(db, 'activities'),
       where('workspaceId', '==', workspaceId),
+      where('involvedUserIds', 'array-contains', user.uid),
       orderBy('createdAt', 'desc'),
-      limit(50)
+      limit(100) // Increased for better personalized history
     );
 
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
-        const activityData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toMillis() || Date.now()
-        })) as Activity[];
-        setActivities(activityData);
-        setLoading(false);
+        if (!isMounted) return;
+        const activityData = snapshot.docs.map(docSnap => {
+          const data = docSnap.data();
+          return {
+            id: docSnap.id,
+            ...data,
+            createdAt: (data.createdAt as { toMillis: () => number })?.toMillis?.() || Date.now()
+          };
+        }) as Activity[];
+        
+        setState(prev => ({
+          ...prev,
+          activities: activityData,
+          loading: false
+        }));
       },
       (error) => {
+        if (!isMounted) return;
         console.error("Activity sync error:", error);
-        setLoading(false);
+        setState(prev => ({ ...prev, loading: false }));
       }
     );
 
-    return () => unsubscribe();
-  }, [workspaceId]);
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, [workspaceId, user?.uid]);
 
-  return { activities, loading };
+  return { activities: state.activities, loading: state.loading };
 };

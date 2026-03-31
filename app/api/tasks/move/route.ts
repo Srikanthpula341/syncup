@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 import { getAuthSession } from '@/app/lib/auth-util';
+import { ACTIVITY_TYPES } from '@/app/lib/route-constants';
 
 export async function PATCH(req: Request) {
   try {
@@ -14,15 +15,16 @@ export async function PATCH(req: Request) {
       newColumnName 
     } = await req.json();
 
-    if (!taskId || !userId || !newColumnId) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
     // Security: Verify authentication
     const authUid = await getAuthSession();
     if (!authUid || authUid !== userId) {
       return NextResponse.json({ error: 'Unauthorized: Session invalid or spoofed' }, { status: 401 });
     }
+
+    // Fetch task to get assignee for activity involvement
+    const taskDoc = await adminDb.doc(`tasks/${taskId}`).get();
+    const taskData = taskDoc.exists ? taskDoc.data() : null;
+    const assigneeId = taskData?.assigneeId;
 
     // Update task in Firestore
     await adminDb.doc(`tasks/${taskId}`).update({
@@ -31,11 +33,17 @@ export async function PATCH(req: Request) {
     });
 
     // Log activity for the timeline
+    const involvedUserIds = [userId];
+    if (assigneeId && assigneeId !== userId) {
+      involvedUserIds.push(assigneeId);
+    }
+
     await adminDb.collection('activities').add({
       workspaceId: workspaceId || 'unknown',
-      type: 'TASK_MOVED',
+      type: ACTIVITY_TYPES.TASK_MOVED,
       userId,
       entityId: taskId,
+      involvedUserIds, // Added for personalization
       metadata: {
         taskTitle: taskTitle || 'Unknown Task',
         from: oldColumnName || 'Unknown',

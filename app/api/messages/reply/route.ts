@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 import { getAuthSession } from '@/app/lib/auth-util';
+import { ACTIVITY_TYPES } from '@/app/lib/route-constants';
 
 export async function POST(req: Request) {
   try {
@@ -41,7 +42,9 @@ export async function POST(req: Request) {
     };
 
     const parentRef = adminDb.doc(parentPath);
-
+    const parentSnap = await parentRef.get();
+    const parentAuthorId = parentSnap.exists ? parentSnap.data()?.userId : null;
+    
     // Write reply to sub-collection and increment count atomically
     const replyRef = await parentRef.collection('replies').add(replyData);
     
@@ -51,11 +54,17 @@ export async function POST(req: Request) {
     });
 
     // Activity Log
+    const involvedUserIds = [userId];
+    if (parentAuthorId && parentAuthorId !== userId) {
+      involvedUserIds.push(parentAuthorId);
+    }
+
     await adminDb.collection('activities').add({
       workspaceId: workspaceId || 'unknown',
-      type: 'THREAD_REPLY_SENT',
+      type: ACTIVITY_TYPES.THREAD_REPLY_SENT,
       userId,
       entityId: parentMessageId,
+      involvedUserIds, // Added for personalization
       metadata: {
         channelId,
         replyPreview: content.trim().substring(0, 50),

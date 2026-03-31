@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminDb, adminFirestore } from '@/app/lib/firebase-admin';
 import { getAuthSession } from '@/app/lib/auth-util';
+import { ACTIVITY_TYPES } from '@/app/lib/route-constants';
 
 export async function POST(req: Request) {
   try {
@@ -50,11 +51,18 @@ export async function POST(req: Request) {
     }, { merge: true });
 
     // Activity Log
+    const involvedUserIds = [userId];
+    if (isDM) {
+      const recipientUid = channelId.replace('dm-', '').split('_').find((id: string) => id !== userId);
+      if (recipientUid) involvedUserIds.push(recipientUid);
+    }
+
     await adminDb.collection('activities').add({
       workspaceId,
-      type: 'MESSAGE_SENT',
+      type: ACTIVITY_TYPES.MESSAGE_SENT,
       userId,
       entityId: channelId,
+      involvedUserIds, // Added for personalization
       metadata: {
         channelName: isDM ? 'Direct Message' : 'Channel', 
         preview: preview,
